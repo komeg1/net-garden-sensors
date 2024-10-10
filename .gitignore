@@ -1,0 +1,7 @@
+Database/
+**/appsettings.json
+Api/bin/
+**/bin/
+**/bin
+**/obj/
+**/obj
