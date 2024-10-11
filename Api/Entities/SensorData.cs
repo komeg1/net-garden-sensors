@@ -15,5 +15,5 @@ public class SensorData{
 
     public string Unit { get; set; } = null!;
 
-    public DateTime timestamp { get; set; }
+    public DateTime Timestamp { get; set; }
 }

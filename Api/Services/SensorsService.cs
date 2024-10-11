@@ -11,14 +11,17 @@ public class SensorsService : ISensorsService
     public SensorsService(
         IOptions<SensorsDatabaseSettings> sensorsDatabaseSettings)
     {
+        Console.WriteLine("connecting to db");
         var mongoClient = new MongoClient(
             sensorsDatabaseSettings.Value.ConnectionString);
 
         var mongoDatabase = mongoClient.GetDatabase(
             sensorsDatabaseSettings.Value.DatabaseName);
 
+        Console.WriteLine(sensorsDatabaseSettings.Value.SensorsCollectionName);
         _sensorDataCollection = mongoDatabase.GetCollection<SensorData>(
             sensorsDatabaseSettings.Value.SensorsCollectionName);
+        Console.WriteLine("connected to db");
     }
 
     public async Task<List<SensorData>> GetAsync() =>
@@ -27,8 +30,25 @@ public class SensorsService : ISensorsService
     public async Task<SensorData?> GetAsync(string id) =>
         await _sensorDataCollection.Find(x => x.Id == id).FirstOrDefaultAsync();
 
-    public async Task CreateAsync(SensorData newSensorData) =>
-        await _sensorDataCollection.InsertOneAsync(newSensorData);
+    public async Task CreateAsync(SensorData newSensorData) {
+        try
+        {
+        Console.WriteLine(newSensorData.Timestamp.ToString());
+         _sensorDataCollection.InsertOne(newSensorData);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e.Message);
+        }
+        Console.WriteLine("dodane");
+        var filter = Builders<SensorData>.Filter
+                .Eq(r => r.Unit, "C");
+
+            // Finds the newly inserted document by using the filter
+        var document = _sensorDataCollection.Find(filter).FirstOrDefault();
+        Console.WriteLine("", document);
+    }
+        
 
     public async Task UpdateAsync(string id, SensorData updatedSensorData) =>
         await _sensorDataCollection.ReplaceOneAsync(x => x.Id == id, updatedSensorData);

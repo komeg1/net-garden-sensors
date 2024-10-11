@@ -18,8 +18,8 @@ public class Program
             
         builder.Services.Configure<MqttSettings>(builder.Configuration.GetSection("MqttSettings"));
 
-        builder.Services.AddScoped<ISensorsService,SensorsService>();
-        //builder.Services.AddSingleton<MqttService>();
+        builder.Services.AddSingleton<ISensorsService,SensorsService>();
+        builder.Services.AddSingleton<MqttService>();
 
 
         var app = builder.Build();
@@ -40,8 +40,9 @@ public class Program
 
         //start mqtt
         
-        //var mqttService = app.Services.GetRequiredService<MqttService>();
-        //Task.Run(() =>mqttService.Connect()).Wait();
+        var mqttService = app.Services.GetRequiredService<MqttService>();
+        
+        Task.Run(() =>mqttService.Connect()).Wait();
         
 
         app.Run();
