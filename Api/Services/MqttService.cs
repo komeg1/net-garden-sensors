@@ -64,10 +64,10 @@ public class MqttService : IMqttService
     {
         var payload = Encoding.UTF8.GetString(e.ApplicationMessage.Payload);
         var deserializedPayload = JObject.Parse(payload);
-
+        Console.WriteLine($"Received message: {deserializedPayload}");
         using (var scope = _serviceProvider.CreateScope())
         {
-            var ctx = scope.ServiceProvider.GetRequiredService<ISensorsService>();
+            var ctx = scope.ServiceProvider.GetRequiredService<ISensorDataService>();
 
             var guid = BitConverter.ToString(Guid.NewGuid().ToByteArray())
             .Replace("-", "")

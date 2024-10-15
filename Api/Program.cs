@@ -18,7 +18,7 @@ public class Program
             
         builder.Services.Configure<MqttSettings>(builder.Configuration.GetSection("MqttSettings"));
 
-        builder.Services.AddSingleton<ISensorsService,SensorsService>();
+        builder.Services.AddSingleton<ISensorDataService,SensorDataService>();
         builder.Services.AddSingleton<MqttService>();
 
 

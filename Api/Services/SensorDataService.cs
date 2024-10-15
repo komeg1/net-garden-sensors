@@ -4,11 +4,11 @@ using MongoDB.Driver;
 
 namespace Api;
 
-public class SensorsService : ISensorsService
+public class SensorDataService : ISensorDataService
 {
     private readonly IMongoCollection<SensorData> _sensorDataCollection;
 
-    public SensorsService(
+    public SensorDataService(
         IOptions<SensorsDatabaseSettings> sensorsDatabaseSettings)
     {
         Console.WriteLine("connecting to db");
@@ -33,14 +33,16 @@ public class SensorsService : ISensorsService
     public async Task CreateAsync(SensorData newSensorData) {
         try
         {
-        Console.WriteLine(newSensorData.Timestamp.ToString());
-         _sensorDataCollection.InsertOne(newSensorData);
+            Console.WriteLine(newSensorData.Timestamp.ToString());
+            await _sensorDataCollection.InsertOneAsync(newSensorData);
+            Console.WriteLine("dodane");
         }
         catch (Exception e)
         {
             Console.WriteLine(e.Message);
         }
-        Console.WriteLine("dodane");
+        
+        
         var filter = Builders<SensorData>.Filter
                 .Eq(r => r.Unit, "C");
 

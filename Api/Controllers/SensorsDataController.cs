@@ -5,8 +5,8 @@ namespace Api.Controllers;
 [Route("[controller]")]
 public class SensorsController : ControllerBase{
     private readonly ILogger<SensorsController> _logger;
-    private readonly ISensorsService _sensorsService;
-    public SensorsController(ILogger<SensorsController> logger, ISensorsService sensorsService)
+    private readonly ISensorDataService _sensorsService;
+    public SensorsController(ILogger<SensorsController> logger, ISensorDataService sensorsService)
     {
         _logger = logger;
         _sensorsService = sensorsService;

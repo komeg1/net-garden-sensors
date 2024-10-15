@@ -4,7 +4,7 @@ using MongoDB.Driver;
 
 namespace Api;
 
-public interface ISensorsService
+public interface ISensorDataService
 {
    
 
