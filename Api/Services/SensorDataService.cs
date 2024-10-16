@@ -1,7 +1,7 @@
 
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
-
+using MongoDB.Bson;
 namespace Api;
 
 public class SensorDataService : ISensorDataService
@@ -57,4 +57,20 @@ public class SensorDataService : ISensorDataService
 
     public async Task RemoveAsync(string id) =>
         await _sensorDataCollection.DeleteOneAsync(x => x.Id == id);
+
+   public async Task<List<SensorData>> GetNewestDataAsync() {
+    var pipeline = new BsonDocument[]
+        {
+            new BsonDocument("$sort", new BsonDocument("Timestamp", -1)),  // Sort by Timestamp in descending order
+            new BsonDocument("$group", new BsonDocument
+            {
+                { "_id", "$SensorId" },  // Group by SensorId
+                { "latestRecord", new BsonDocument("$first", "$$ROOT") }  // Get the first (latest) record for each group
+            }),
+            new BsonDocument("$replaceRoot", new BsonDocument("newRoot", "$latestRecord"))  // Replace the root with the latest record
+        };
+    
+    var result = await _sensorDataCollection.Aggregate<SensorData>(pipeline).ToListAsync();
+    return result;
+    }
 }

@@ -75,9 +75,10 @@ public class MqttService : IMqttService
             .Substring(0,24);
 
         await ctx.CreateAsync(new SensorData{Id=guid,
-                                                   SensorId = deserializedPayload["sensorid"].Value<int>(),
-                                                   Value= deserializedPayload["temperature"].Value<float>(),
+                                                   SensorId = deserializedPayload["sensorId"].Value<int>(),
+                                                   Value= deserializedPayload["value"].Value<float>(),
                                                    Unit=deserializedPayload["unit"].ToString(),
+                                                   Location=deserializedPayload["location"].ToString(),
                                                    Timestamp=DateTime.Parse(deserializedPayload["timestamp"].ToString())});
         }
 

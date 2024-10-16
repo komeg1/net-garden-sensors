@@ -19,4 +19,12 @@ public class SensorsController : ControllerBase{
         return sensorData;
         
     }
+
+    [HttpGet("latest",Name="GetLatestData")]
+    public async Task<List<SensorData>> GetLatest()
+    {
+        var sensorData = await _sensorsService.GetNewestDataAsync();
+        return sensorData;
+        
+    }
 }
