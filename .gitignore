@@ -5,3 +5,6 @@ Api/bin/
 **/bin
 **/obj/
 **/obj
+**/venv/
+**/__pycache__/
+**/GeneratedFiles

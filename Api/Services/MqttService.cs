@@ -64,10 +64,10 @@ public class MqttService : IMqttService
     {
         var payload = Encoding.UTF8.GetString(e.ApplicationMessage.Payload);
         var deserializedPayload = JObject.Parse(payload);
-
+        Console.WriteLine($"Received message: {deserializedPayload}");
         using (var scope = _serviceProvider.CreateScope())
         {
-            var ctx = scope.ServiceProvider.GetRequiredService<ISensorsService>();
+            var ctx = scope.ServiceProvider.GetRequiredService<ISensorDataService>();
 
             var guid = BitConverter.ToString(Guid.NewGuid().ToByteArray())
             .Replace("-", "")
@@ -75,9 +75,10 @@ public class MqttService : IMqttService
             .Substring(0,24);
 
         await ctx.CreateAsync(new SensorData{Id=guid,
-                                                   SensorId = deserializedPayload["sensorid"].Value<int>(),
-                                                   Value= deserializedPayload["temperature"].Value<float>(),
+                                                   SensorId = deserializedPayload["sensorId"].Value<int>(),
+                                                   Value= deserializedPayload["value"].Value<float>(),
                                                    Unit=deserializedPayload["unit"].ToString(),
+                                                   Location=deserializedPayload["location"].ToString(),
                                                    Timestamp=DateTime.Parse(deserializedPayload["timestamp"].ToString())});
         }
 

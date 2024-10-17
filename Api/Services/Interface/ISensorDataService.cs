@@ -4,7 +4,7 @@ using MongoDB.Driver;
 
 namespace Api;
 
-public interface ISensorsService
+public interface ISensorDataService
 {
    
 
@@ -13,4 +13,7 @@ public interface ISensorsService
     Task CreateAsync(SensorData newSensorData);
     Task UpdateAsync(string id, SensorData updatedSensorData);
     Task RemoveAsync(string id);
+    Task<List<SensorData>> GetNewestDataAsync();
+    Task<byte[]> ExportToFile(ExportFormat format);
+
 }

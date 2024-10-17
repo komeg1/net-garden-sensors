@@ -18,7 +18,7 @@ public class Program
             
         builder.Services.Configure<MqttSettings>(builder.Configuration.GetSection("MqttSettings"));
 
-        builder.Services.AddSingleton<ISensorsService,SensorsService>();
+        builder.Services.AddSingleton<ISensorDataService,SensorDataSevice>();
         builder.Services.AddSingleton<MqttService>();
 
 
@@ -44,7 +44,9 @@ public class Program
         
         Task.Run(() =>mqttService.Connect()).Wait();
         
+        var sensorService = app.Services.GetRequiredService<ISensorDataService>();
 
+        Task.Run(()=>sensorService.ExportToFile(ExportFormat.JSON));
         app.Run();
 
         

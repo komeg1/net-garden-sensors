@@ -13,6 +13,8 @@ public class SensorData{
 
     public float Value { get; set; }
 
+    public string Location {get;set;} = null!;
+
     public string Unit { get; set; } = null!;
 
     public DateTime Timestamp { get; set; }

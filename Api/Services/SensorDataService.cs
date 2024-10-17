@@ -1,14 +1,15 @@
 
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
-
+using MongoDB.Bson;
 namespace Api;
 
-public class SensorsService : ISensorsService
+public class SensorDataSevice : ISensorDataService
 {
     private readonly IMongoCollection<SensorData> _sensorDataCollection;
+    
 
-    public SensorsService(
+    public SensorDataSevice(
         IOptions<SensorsDatabaseSettings> sensorsDatabaseSettings)
     {
         Console.WriteLine("connecting to db");
@@ -40,19 +41,45 @@ public class SensorsService : ISensorsService
         {
             Console.WriteLine(e.Message);
         }
-        Console.WriteLine("dodane");
-        var filter = Builders<SensorData>.Filter
-                .Eq(r => r.Unit, "C");
-
-            // Finds the newly inserted document by using the filter
-        var document = _sensorDataCollection.Find(filter).FirstOrDefault();
-        Console.WriteLine("", document);
+        
     }
         
-
     public async Task UpdateAsync(string id, SensorData updatedSensorData) =>
         await _sensorDataCollection.ReplaceOneAsync(x => x.Id == id, updatedSensorData);
 
     public async Task RemoveAsync(string id) =>
         await _sensorDataCollection.DeleteOneAsync(x => x.Id == id);
+
+   public async Task<List<SensorData>> GetNewestDataAsync() {
+    var pipeline = new BsonDocument[]
+        {
+            new BsonDocument("$sort", new BsonDocument("Timestamp", -1)),  // Sort by Timestamp in descending order
+            new BsonDocument("$group", new BsonDocument
+            {
+                { "_id", "$SensorId" },  // Group by SensorId
+                { "latestRecord", new BsonDocument("$first", "$$ROOT") }  // Get the first (latest) record for each group
+            }),
+            new BsonDocument("$replaceRoot", new BsonDocument("newRoot", "$latestRecord"))  // Replace the root with the latest record
+        };
+    
+    var result = await _sensorDataCollection.Aggregate<SensorData>(pipeline).ToListAsync();
+    return result;
+    }
+
+    public async Task<byte[]> ExportToFile(ExportFormat format){
+        var data = await GetAsync();
+
+        if (data == null)
+            return null;
+
+        if (format == ExportFormat.JSON)
+            return Utils.ExportToJson(data, Guid.NewGuid());
+
+        if (format == ExportFormat.CSV)
+            return Utils.ExportToCsv(data, Guid.NewGuid());
+
+        return null;
+
+    }
 }
+
