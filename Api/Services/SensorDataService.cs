@@ -31,6 +31,11 @@ public class SensorDataSevice : ISensorDataService
     public async Task<SensorData?> GetAsync(string id) =>
         await _sensorDataCollection.Find(x => x.Id == id).FirstOrDefaultAsync();
 
+    public async Task<List<SensorData>> GetAsync(FilterDefinition<SensorData> filter)
+    {
+       return await _sensorDataCollection.Find(filter).ToListAsync();
+    }
+
     public async Task CreateAsync(SensorData newSensorData) {
         try
         {
@@ -81,5 +86,7 @@ public class SensorDataSevice : ISensorDataService
         return null;
 
     }
+
+    
 }
 

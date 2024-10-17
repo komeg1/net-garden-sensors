@@ -13,10 +13,26 @@ public class SensorsController : ControllerBase{
     }
 
     [HttpGet(Name = "GetSensorsData")]
-    public async Task<List<SensorData>> Get()
+    public async Task<List<SensorData>> Get([FromQuery] int sensorId=-1, [FromQuery] string type="", [FromQuery] DateTime startDate=default, [FromQuery] DateTime endDate=default)
     {
-        var sensorData = await _sensorsService.GetAsync();
-        return sensorData;
+        List<SensorData>? sensorData;
+        if(sensorId != -1 || type != "" || startDate != default || endDate != default)
+        {
+            sensorData = await _sensorsService.GetAsync(
+                MongoDbFilterFactory.BuildFromRequest(new SensorDataFilterOptions
+                {
+                    SensorId = sensorId,
+                    Type = type,
+                    StartDate = startDate,
+                    EndDate = endDate
+                })
+            );
+        }
+        else{
+            sensorData = await _sensorsService.GetAsync();
+        }
+
+    return sensorData;
         
     }
 
