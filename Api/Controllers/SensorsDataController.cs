@@ -13,18 +13,23 @@ public class SensorsController : ControllerBase{
     }
 
     [HttpGet(Name = "GetSensorsData")]
-    public async Task<List<SensorData>> Get([FromQuery] int sensorId=-1, [FromQuery] string type="", [FromQuery] DateTime startDate=default, [FromQuery] DateTime endDate=default)
+    public async Task<List<SensorData>> Get([FromQuery] int sensorId=-1,
+                                            [FromQuery] string type="",
+                                            [FromQuery] DateTime startDate=default,
+                                            [FromQuery] DateTime endDate=default,
+                                            [FromQuery] SortType sort = SortType.NONE)
     {
         List<SensorData>? sensorData;
-        if(sensorId != -1 || type != "" || startDate != default || endDate != default)
+        if(sensorId != -1 || type != "" || startDate != default || endDate != default || sort != SortType.NONE)
         {
             sensorData = await _sensorsService.GetAsync(
-                MongoDbFilterFactory.BuildFromRequest(new SensorDataFilterOptions
+                DbPipelineFactory.BuildFromRequest(new SensorDataFilterOptions
                 {
                     SensorId = sensorId,
                     Type = type,
                     StartDate = startDate,
-                    EndDate = endDate
+                    EndDate = endDate,
+                    Sort = sort
                 })
             );
         }
@@ -45,16 +50,38 @@ public class SensorsController : ControllerBase{
     }
 
     [HttpGet("export")]
-    public IActionResult ExportData([FromQuery] ExportFormat exportFormat)
+    public IActionResult ExportData([FromQuery] ExportFormat exportFormat,[FromQuery] int sensorId=-1,
+                                            [FromQuery] string type="",
+                                            [FromQuery] DateTime startDate=default,
+                                            [FromQuery] DateTime endDate=default,
+                                            [FromQuery] SortType sort = SortType.NONE)
     {
         if (exportFormat == null)
             return BadRequest("Invalid File type");
 
-
-        return File(_sensorsService
+        if(sensorId == -1 && type == "" && startDate == default && endDate == default && sort ==SortType.NONE)
+        {
+            return File(_sensorsService
                         .ExportToFile(exportFormat).Result
                     ,"application/octet-stream"
                     , $"{DateTime.UtcNow}.{(exportFormat == ExportFormat.CSV ? "csv" : "json")}");
+        }
+
+        return File(_sensorsService
+                    .ExportToFile(exportFormat,
+                        DbPipelineFactory.BuildFromRequest(new SensorDataFilterOptions
+                        {
+                            SensorId = sensorId,
+                            Type = type,
+                            StartDate = startDate,
+                            EndDate = endDate,
+                            Sort = sort
+                        }
+                )).Result
+                    ,"application/octet-stream"
+                    , $"{DateTime.UtcNow}.{(exportFormat == ExportFormat.CSV ? "csv" : "json")}");
+
+        
     
 
 

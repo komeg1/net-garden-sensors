@@ -3,6 +3,6 @@ public class SensorDataFilterOptions{
     public string Type {get;set;} = null!;
     public DateTime StartDate {get;set;}
     public DateTime EndDate {get;set;}
-
+    public SortType Sort {get;set;} = SortType.NONE;
 
 }

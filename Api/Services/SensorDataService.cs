@@ -31,9 +31,9 @@ public class SensorDataSevice : ISensorDataService
     public async Task<SensorData?> GetAsync(string id) =>
         await _sensorDataCollection.Find(x => x.Id == id).FirstOrDefaultAsync();
 
-    public async Task<List<SensorData>> GetAsync(FilterDefinition<SensorData> filter)
+    public async Task<List<SensorData>> GetAsync(PipelineDefinition<SensorData,SensorData>? pipeline)
     {
-       return await _sensorDataCollection.Find(filter).ToListAsync();
+       return await _sensorDataCollection.Aggregate(pipeline).ToListAsync();
     }
 
     public async Task CreateAsync(SensorData newSensorData) {
@@ -58,21 +58,27 @@ public class SensorDataSevice : ISensorDataService
    public async Task<List<SensorData>> GetNewestDataAsync() {
     var pipeline = new BsonDocument[]
         {
-            new BsonDocument("$sort", new BsonDocument("Timestamp", -1)),  // Sort by Timestamp in descending order
+            new BsonDocument("$sort", new BsonDocument("Timestamp", -1)), 
             new BsonDocument("$group", new BsonDocument
             {
                 { "_id", "$SensorId" },  // Group by SensorId
-                { "latestRecord", new BsonDocument("$first", "$$ROOT") }  // Get the first (latest) record for each group
+                { "latestRecord", new BsonDocument("$first", "$$ROOT") }  
             }),
-            new BsonDocument("$replaceRoot", new BsonDocument("newRoot", "$latestRecord"))  // Replace the root with the latest record
+            new BsonDocument("$replaceRoot", new BsonDocument("newRoot", "$latestRecord")) 
         };
     
     var result = await _sensorDataCollection.Aggregate<SensorData>(pipeline).ToListAsync();
     return result;
     }
 
-    public async Task<byte[]> ExportToFile(ExportFormat format){
-        var data = await GetAsync();
+    public async Task<byte[]> ExportToFile(ExportFormat format, PipelineDefinition<SensorData, SensorData>? pipeline){
+        List<SensorData> data;
+
+        if(pipeline == null)
+             data = await GetAsync();
+        else
+             data = await GetAsync(pipeline);
+        
 
         if (data == null)
             return null;
