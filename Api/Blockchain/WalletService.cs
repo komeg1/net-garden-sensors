@@ -14,10 +14,7 @@ namespace Api
 
         public Account GenerateSensorWallet(int sensorId)
         {
-            // Utwórz portfel na podstawie podanego mnemonika
             var wallet = new Wallet(_mnemonic, null);
-
-            // Generuj adres portfela dla konkretnego sensora
             var account = wallet.GetAccount(sensorId);
 
             return account;

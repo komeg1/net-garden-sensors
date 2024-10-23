@@ -13,6 +13,7 @@ public class SensorDataService : ISensorDataService
     public BlockingCollection<SensorData> DataQueue => _dataQueue;
     private readonly WalletService _walletService;
     private readonly BlockchainService _blockchainService;
+    private const int REWARD = 10;
 
     public SensorDataSevice(
         IOptions<SensorsDatabaseSettings> sensorsDatabaseSettings,
@@ -54,7 +55,8 @@ public class SensorDataService : ISensorDataService
             _sensorDataCollection.InsertOne(newSensorData);
             OnLog?.Invoke(this,new LogEventArgs("Successfully added to db",LogLevel.Debug));
             _dataQueue.Add(newSensorData);
-
+            var wallet  = _walletService.GetSensorWalletAddress(newSensorData.SensorId);
+            _blockchainService.RewardSensorAsync(wallet, REWARD);
         }
         catch (Exception e)
         {
