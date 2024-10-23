@@ -11,8 +11,13 @@ public class SensorDataService : ISensorDataService
     private event EventHandler<LogEventArgs>? OnLog;
     private static readonly BlockingCollection<SensorData> _dataQueue = new BlockingCollection<SensorData>();
     public BlockingCollection<SensorData> DataQueue => _dataQueue;
+    private readonly WalletService _walletService;
+    private readonly BlockchainService _blockchainService;
 
-    public SensorDataService(IOptions<SensorsDatabaseSettings> sensorsDatabaseSettings)
+    public SensorDataSevice(
+        IOptions<SensorsDatabaseSettings> sensorsDatabaseSettings,
+        BlockchainService blockchainService,
+        WalletService walletService)
     {
     
         OnLog += Logger.Instance.Log;
@@ -27,6 +32,9 @@ public class SensorDataService : ISensorDataService
         _sensorDataCollection = mongoDatabase.GetCollection<SensorData>(
             sensorsDatabaseSettings.Value.SensorsCollectionName);
         OnLog?.Invoke(this,new LogEventArgs($"connected to {sensorsDatabaseSettings.Value.DatabaseName} db", LogLevel.Success));
+        Console.WriteLine("connected to db");
+        _blockchainService = blockchainService;
+        _walletService = walletService;
     }
 
     public async Task<List<SensorData>> GetAsync() =>

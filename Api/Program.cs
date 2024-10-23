@@ -1,4 +1,3 @@
-
 namespace Api;
 using System.Text.Json;
 using Microsoft.Net.Http.Headers;
@@ -30,6 +29,13 @@ public class Program
 
         builder.Services.AddSingleton<ISensorDataService,SensorDataService>();
         builder.Services.AddSingleton<MqttService>();
+
+        builder.Services.AddSingleton<BlockchainService>();
+        builder.Services.AddSingleton<WalletService>(provider =>
+        {
+            var mnemonic = "circle vital cake know boat crumble entry rubber sleep beach anchor mercy";
+            return new WalletService(mnemonic);
+        });
 
         var app = builder.Build();
         app.UseCors("AllowSpecificOrigin");

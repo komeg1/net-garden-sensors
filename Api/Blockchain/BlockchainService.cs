@@ -2,7 +2,7 @@
 using Nethereum.Web3;
 using Nethereum.Web3.Accounts;
 
-namespace Api.Blockchain
+namespace Api
 {
     public class BlockchainService
     {
@@ -11,247 +11,247 @@ namespace Api.Blockchain
         private static string infuraUrl = "";
         private static Web3 web3;
         private static string contractABI = @"[
-	{
-		""inputs"": [],
-		""stateMutability"": ""nonpayable"",
-		""type"": ""constructor""
-	},
-	{
-		""anonymous"": false,
-		""inputs"": [
 			{
-				""indexed"": true,
-				""internalType"": ""address"",
-				""name"": ""tokenOwner"",
-				""type"": ""address""
+				""inputs"": [],
+				""stateMutability"": ""nonpayable"",
+				""type"": ""constructor""
 			},
 			{
-				""indexed"": true,
-				""internalType"": ""address"",
-				""name"": ""spender"",
-				""type"": ""address""
+				""anonymous"": false,
+				""inputs"": [
+					{
+						""indexed"": true,
+						""internalType"": ""address"",
+						""name"": ""tokenOwner"",
+						""type"": ""address""
+					},
+					{
+						""indexed"": true,
+						""internalType"": ""address"",
+						""name"": ""spender"",
+						""type"": ""address""
+					},
+					{
+						""indexed"": false,
+						""internalType"": ""uint256"",
+						""name"": ""tokens"",
+						""type"": ""uint256""
+					}
+				],
+				""name"": ""Approval"",
+				""type"": ""event""
 			},
 			{
-				""indexed"": false,
-				""internalType"": ""uint256"",
-				""name"": ""tokens"",
-				""type"": ""uint256""
-			}
-		],
-		""name"": ""Approval"",
-		""type"": ""event""
-	},
-	{
-		""inputs"": [
-			{
-				""internalType"": ""address"",
-				""name"": ""spender"",
-				""type"": ""address""
+				""inputs"": [
+					{
+						""internalType"": ""address"",
+						""name"": ""spender"",
+						""type"": ""address""
+					},
+					{
+						""internalType"": ""uint256"",
+						""name"": ""tokens"",
+						""type"": ""uint256""
+					}
+				],
+				""name"": ""approve"",
+				""outputs"": [
+					{
+						""internalType"": ""bool"",
+						""name"": ""success"",
+						""type"": ""bool""
+					}
+				],
+				""stateMutability"": ""nonpayable"",
+				""type"": ""function""
 			},
 			{
-				""internalType"": ""uint256"",
-				""name"": ""tokens"",
-				""type"": ""uint256""
-			}
-		],
-		""name"": ""approve"",
-		""outputs"": [
-			{
-				""internalType"": ""bool"",
-				""name"": ""success"",
-				""type"": ""bool""
-			}
-		],
-		""stateMutability"": ""nonpayable"",
-		""type"": ""function""
-	},
-	{
-		""inputs"": [
-			{
-				""internalType"": ""address"",
-				""name"": ""to"",
-				""type"": ""address""
+				""inputs"": [
+					{
+						""internalType"": ""address"",
+						""name"": ""to"",
+						""type"": ""address""
+					},
+					{
+						""internalType"": ""uint256"",
+						""name"": ""tokens"",
+						""type"": ""uint256""
+					}
+				],
+				""name"": ""transfer"",
+				""outputs"": [
+					{
+						""internalType"": ""bool"",
+						""name"": ""success"",
+						""type"": ""bool""
+					}
+				],
+				""stateMutability"": ""nonpayable"",
+				""type"": ""function""
 			},
 			{
-				""internalType"": ""uint256"",
-				""name"": ""tokens"",
-				""type"": ""uint256""
-			}
-		],
-		""name"": ""transfer"",
-		""outputs"": [
-			{
-				""internalType"": ""bool"",
-				""name"": ""success"",
-				""type"": ""bool""
-			}
-		],
-		""stateMutability"": ""nonpayable"",
-		""type"": ""function""
-	},
-	{
-		""anonymous"": false,
-		""inputs"": [
-			{
-				""indexed"": true,
-				""internalType"": ""address"",
-				""name"": ""from"",
-				""type"": ""address""
+				""anonymous"": false,
+				""inputs"": [
+					{
+						""indexed"": true,
+						""internalType"": ""address"",
+						""name"": ""from"",
+						""type"": ""address""
+					},
+					{
+						""indexed"": true,
+						""internalType"": ""address"",
+						""name"": ""to"",
+						""type"": ""address""
+					},
+					{
+						""indexed"": false,
+						""internalType"": ""uint256"",
+						""name"": ""tokens"",
+						""type"": ""uint256""
+					}
+				],
+				""name"": ""Transfer"",
+				""type"": ""event""
 			},
 			{
-				""indexed"": true,
-				""internalType"": ""address"",
-				""name"": ""to"",
-				""type"": ""address""
+				""inputs"": [
+					{
+						""internalType"": ""address"",
+						""name"": ""from"",
+						""type"": ""address""
+					},
+					{
+						""internalType"": ""address"",
+						""name"": ""to"",
+						""type"": ""address""
+					},
+					{
+						""internalType"": ""uint256"",
+						""name"": ""tokens"",
+						""type"": ""uint256""
+					}
+				],
+				""name"": ""transferFrom"",
+				""outputs"": [
+					{
+						""internalType"": ""bool"",
+						""name"": ""success"",
+						""type"": ""bool""
+					}
+				],
+				""stateMutability"": ""nonpayable"",
+				""type"": ""function""
 			},
 			{
-				""indexed"": false,
-				""internalType"": ""uint256"",
-				""name"": ""tokens"",
-				""type"": ""uint256""
-			}
-		],
-		""name"": ""Transfer"",
-		""type"": ""event""
-	},
-	{
-		""inputs"": [
-			{
-				""internalType"": ""address"",
-				""name"": ""from"",
-				""type"": ""address""
+				""inputs"": [],
+				""name"": ""_totalSupply"",
+				""outputs"": [
+					{
+						""internalType"": ""uint256"",
+						""name"": """",
+						""type"": ""uint256""
+					}
+				],
+				""stateMutability"": ""view"",
+				""type"": ""function""
 			},
 			{
-				""internalType"": ""address"",
-				""name"": ""to"",
-				""type"": ""address""
+				""inputs"": [
+					{
+						""internalType"": ""address"",
+						""name"": ""tokenOwner"",
+						""type"": ""address""
+					},
+					{
+						""internalType"": ""address"",
+						""name"": ""spender"",
+						""type"": ""address""
+					}
+				],
+				""name"": ""allowance"",
+				""outputs"": [
+					{
+						""internalType"": ""uint256"",
+						""name"": ""remaining"",
+						""type"": ""uint256""
+					}
+				],
+				""stateMutability"": ""view"",
+				""type"": ""function""
 			},
 			{
-				""internalType"": ""uint256"",
-				""name"": ""tokens"",
-				""type"": ""uint256""
-			}
-		],
-		""name"": ""transferFrom"",
-		""outputs"": [
-			{
-				""internalType"": ""bool"",
-				""name"": ""success"",
-				""type"": ""bool""
-			}
-		],
-		""stateMutability"": ""nonpayable"",
-		""type"": ""function""
-	},
-	{
-		""inputs"": [],
-		""name"": ""_totalSupply"",
-		""outputs"": [
-			{
-				""internalType"": ""uint256"",
-				""name"": """",
-				""type"": ""uint256""
-			}
-		],
-		""stateMutability"": ""view"",
-		""type"": ""function""
-	},
-	{
-		""inputs"": [
-			{
-				""internalType"": ""address"",
-				""name"": ""tokenOwner"",
-				""type"": ""address""
+				""inputs"": [
+					{
+						""internalType"": ""address"",
+						""name"": ""tokenOwner"",
+						""type"": ""address""
+					}
+				],
+				""name"": ""balanceOf"",
+				""outputs"": [
+					{
+						""internalType"": ""uint256"",
+						""name"": ""balance"",
+						""type"": ""uint256""
+					}
+				],
+				""stateMutability"": ""view"",
+				""type"": ""function""
 			},
 			{
-				""internalType"": ""address"",
-				""name"": ""spender"",
-				""type"": ""address""
-			}
-		],
-		""name"": ""allowance"",
-		""outputs"": [
+				""inputs"": [],
+				""name"": ""decimals"",
+				""outputs"": [
+					{
+						""internalType"": ""uint8"",
+						""name"": """",
+						""type"": ""uint8""
+					}
+				],
+				""stateMutability"": ""view"",
+				""type"": ""function""
+			},
 			{
-				""internalType"": ""uint256"",
-				""name"": ""remaining"",
-				""type"": ""uint256""
-			}
-		],
-		""stateMutability"": ""view"",
-		""type"": ""function""
-	},
-	{
-		""inputs"": [
+				""inputs"": [],
+				""name"": ""name"",
+				""outputs"": [
+					{
+						""internalType"": ""string"",
+						""name"": """",
+						""type"": ""string""
+					}
+				],
+				""stateMutability"": ""view"",
+				""type"": ""function""
+			},
 			{
-				""internalType"": ""address"",
-				""name"": ""tokenOwner"",
-				""type"": ""address""
-			}
-		],
-		""name"": ""balanceOf"",
-		""outputs"": [
+				""inputs"": [],
+				""name"": ""symbol"",
+				""outputs"": [
+					{
+						""internalType"": ""string"",
+						""name"": """",
+						""type"": ""string""
+					}
+				],
+				""stateMutability"": ""view"",
+				""type"": ""function""
+			},
 			{
-				""internalType"": ""uint256"",
-				""name"": ""balance"",
-				""type"": ""uint256""
+				""inputs"": [],
+				""name"": ""totalSupply"",
+				""outputs"": [
+					{
+						""internalType"": ""uint256"",
+						""name"": """",
+						""type"": ""uint256""
+					}
+				],
+				""stateMutability"": ""view"",
+				""type"": ""function""
 			}
-		],
-		""stateMutability"": ""view"",
-		""type"": ""function""
-	},
-	{
-		""inputs"": [],
-		""name"": ""decimals"",
-		""outputs"": [
-			{
-				""internalType"": ""uint8"",
-				""name"": """",
-				""type"": ""uint8""
-			}
-		],
-		""stateMutability"": ""view"",
-		""type"": ""function""
-	},
-	{
-		""inputs"": [],
-		""name"": ""name"",
-		""outputs"": [
-			{
-				""internalType"": ""string"",
-				""name"": """",
-				""type"": ""string""
-			}
-		],
-		""stateMutability"": ""view"",
-		""type"": ""function""
-	},
-	{
-		""inputs"": [],
-		""name"": ""symbol"",
-		""outputs"": [
-			{
-				""internalType"": ""string"",
-				""name"": """",
-				""type"": ""string""
-			}
-		],
-		""stateMutability"": ""view"",
-		""type"": ""function""
-	},
-	{
-		""inputs"": [],
-		""name"": ""totalSupply"",
-		""outputs"": [
-			{
-				""internalType"": ""uint256"",
-				""name"": """",
-				""type"": ""uint256""
-			}
-		],
-		""stateMutability"": ""view"",
-		""type"": ""function""
-	}
-]";
+		]";
 
         public BlockchainService()
         {
