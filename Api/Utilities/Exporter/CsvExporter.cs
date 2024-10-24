@@ -3,7 +3,20 @@ using Api;
 
 public class CsvExporter<T> : FileExporter<T>
 {
-    public CsvExporter(string filesPath, Guid userGuid) : base(filesPath, userGuid) { }
+    private static CsvExporter<T> _instance;
+    private CsvExporter() {}
+
+    public static CsvExporter<T> Instance
+    {
+        get
+        {
+            if (_instance == null)
+            {
+                _instance = new CsvExporter<T>();
+            }
+            return _instance;
+        }
+    }
 
     public override byte[] Export(List<T> data)
     {

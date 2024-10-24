@@ -66,14 +66,12 @@ public class MqttService : IMqttService
         var payload = Encoding.UTF8.GetString(e.ApplicationMessage.Payload);
         var deserializedPayload = JObject.Parse(payload);
         OnLog?.Invoke(this,new LogEventArgs($"Received message: {deserializedPayload}"));
+
+
         using (var scope = _serviceProvider.CreateScope())
         {
             var ctx = scope.ServiceProvider.GetRequiredService<ISensorDataService>();
-
-            var guid = BitConverter.ToString(Guid.NewGuid().ToByteArray())
-            .Replace("-", "")
-            .ToLower()
-            .Substring(0,24);
+            var guid = GenerateObjectId();
 
         await ctx.CreateAsync(new SensorData{Id=guid,
                                                    SensorId = deserializedPayload["sensorId"].Value<int>(),
@@ -82,10 +80,6 @@ public class MqttService : IMqttService
                                                    Location=deserializedPayload["location"].ToString(),
                                                    Timestamp=DateTime.Parse(deserializedPayload["timestamp"].ToString())});
         }
-
-        
-        
-
     }
 
     public void ValidateMqttSettings(MqttSettings mqttSettings){
@@ -99,4 +93,10 @@ public class MqttService : IMqttService
             throw new ArgumentException("MqttSettings Topic can't be null/blank");
         
     }
+
+    public string GenerateObjectId() => BitConverter.ToString(Guid.NewGuid()
+                                                                .ToByteArray())
+                                                                .Replace("-", "")
+                                                                .ToLower()
+                                                                .Substring(0,24);
 }

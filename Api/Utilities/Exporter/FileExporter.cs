@@ -2,30 +2,29 @@ using Api;
 
 public abstract class FileExporter<T> : IFileExporter<T>
 {
-    protected string _filesPath;
-    protected Guid _userGuid;
-
-    public FileExporter(string filesPath, Guid userGuid)
+    protected static readonly string _FILES_PATH = Path.Combine(Directory.GetCurrentDirectory(), "GeneratedFiles");
+    public FileExporter()
     {
-        _filesPath = filesPath;
-        _userGuid = userGuid;
         CreateFilesDirectory();
     }
 
     public abstract byte[] Export(List<T> data);
 
-    protected void CreateFilesDirectory()
+    public void CreateFilesDirectory()
     {
-        if (!Directory.Exists(_filesPath))
+        if (!Directory.Exists(_FILES_PATH))
         {
-            Directory.CreateDirectory(_filesPath);
+            Directory.CreateDirectory(_FILES_PATH);
         }
     }
 
-    protected string GetFilePath(ExportFormat format) =>
-        Path.Combine(_filesPath, $"{_userGuid}.{(format == ExportFormat.CSV ? "csv" : "json")}");
+    public string GetFilePath(ExportFormat format) =>
+        Path.Combine(_FILES_PATH, $"{Guid.NewGuid}.{(format == ExportFormat.CSV ? "csv" : "json")}");
 
-    protected void LogSuccess(ExportFormat format){
+    public void LogSuccess(ExportFormat format){
         Logger.Instance.Log(this, new LogEventArgs($"Exported {format} successfully", Api.LogLevel.Success));
     }
+
+
+
 }

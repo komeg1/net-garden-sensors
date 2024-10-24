@@ -3,7 +3,20 @@ using Newtonsoft.Json;
 
 public class JsonExporter<T> : FileExporter<T>
 {
-    public JsonExporter(string filesPath, Guid userGuid) : base(filesPath, userGuid) { }
+    private static JsonExporter<T> _instance;
+    private JsonExporter() {}
+
+    public static JsonExporter<T> Instance
+    {
+        get
+        {
+            if (_instance == null)
+            {
+                _instance = new JsonExporter<T>();
+            }
+            return _instance;
+        }
+    }
 
     public override byte[] Export(List<T> data)
     {

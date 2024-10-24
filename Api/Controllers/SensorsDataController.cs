@@ -62,7 +62,7 @@ public class SensorsController : ControllerBase{
         if(sensorId == -1 && type == "" && startDate == default && endDate == default && sort ==SortType.NONE)
         {
             return File(_sensorsService
-                        .ExportToFile(exportFormat).Result
+                        .ExportToFile(exportFormat).Result 
                     ,"application/octet-stream"
                     , $"{DateTime.UtcNow}.{(exportFormat == ExportFormat.CSV ? "csv" : "json")}");
         }
