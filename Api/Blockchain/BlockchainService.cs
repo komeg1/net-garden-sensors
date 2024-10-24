@@ -1,6 +1,7 @@
 ﻿using Nethereum.Hex.HexTypes;
 using Nethereum.Web3;
 using Nethereum.Web3.Accounts;
+using System.Numerics;
 
 namespace Api
 {
@@ -257,6 +258,8 @@ namespace Api
         {
             var account = new Account(privateKey);
             web3 = new Web3(account, infuraUrl);
+			Console.WriteLine("Blockchain service started");
+
         }
 
         public async Task RewardSensorAsync(string sensorWalletAddress, decimal tokenAmount)

@@ -10,6 +10,7 @@ namespace Api
         public WalletService(string mnemonic)
         {
             _mnemonic = mnemonic;
+            Console.WriteLine("Wallet service started");
         }
 
         public Account GenerateSensorWallet(int sensorId)
