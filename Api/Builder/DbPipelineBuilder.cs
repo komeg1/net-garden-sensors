@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Mvc.Filters;
 using MongoDB.Driver;
 
 namespace Api;
-public static class DbPipelineFactory{
+public static class DbPipelineBuilder{
 
     public static PipelineDefinition<SensorData,SensorData> BuildFromRequest(SensorDataFilterOptions options)
     {

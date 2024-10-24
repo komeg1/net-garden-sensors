@@ -23,7 +23,7 @@ public class SensorsController : ControllerBase{
         if(sensorId != -1 || type != "" || startDate != default || endDate != default || sort != SortType.NONE)
         {
             sensorData = await _sensorsService.GetAsync(
-                DbPipelineFactory.BuildFromRequest(new SensorDataFilterOptions
+                DbPipelineBuilder.BuildFromRequest(new SensorDataFilterOptions
                 {
                     SensorId = sensorId,
                     Type = type,
@@ -69,7 +69,7 @@ public class SensorsController : ControllerBase{
 
         return File(_sensorsService
                     .ExportToFile(exportFormat,
-                        DbPipelineFactory.BuildFromRequest(new SensorDataFilterOptions
+                        DbPipelineBuilder.BuildFromRequest(new SensorDataFilterOptions
                         {
                             SensorId = sensorId,
                             Type = type,
