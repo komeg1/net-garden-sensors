@@ -37,7 +37,6 @@ public class Program
 
 
         app.MapControllers();
-
         //start mqtt
         
         var mqttService = app.Services.GetRequiredService<MqttService>();
@@ -46,7 +45,7 @@ public class Program
         
         var sensorService = app.Services.GetRequiredService<ISensorDataService>();
 
-        Task.Run(()=>sensorService.ExportToFile(ExportFormat.JSON));
+        
         app.Run();
 
         

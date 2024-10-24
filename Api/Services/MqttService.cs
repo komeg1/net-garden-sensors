@@ -10,17 +10,18 @@ namespace Api;
 
 public class MqttService : IMqttService
 {
+    private event EventHandler<LogEventArgs> OnLog;
     private readonly IMqttClient _mqttClient;
     private readonly IServiceProvider _serviceProvider;
     private readonly MqttSettings _mqttSettings;
     public MqttService(IOptions<MqttSettings> mqttSettings, IServiceProvider serviceProvider){
+        OnLog += Logger.Instance.Log;
         _mqttClient = new MqttFactory()
                             .CreateMqttClient();    
 
         ValidateMqttSettings(mqttSettings.Value);
         _mqttSettings = mqttSettings.Value;
         _serviceProvider = serviceProvider;
-       
 
     }
     
@@ -37,12 +38,12 @@ public class MqttService : IMqttService
             try
             {
                 await _mqttClient.ConnectAsync(options);
-                Console.WriteLine("connected");
+                OnLog?.Invoke(this,new LogEventArgs("connected", LogLevel.Success));
                 break;
             }
             catch (Exception ex)
             {
-                    Console.WriteLine($"Connection failed: {ex.Message}. Retrying in {5000 / 1000} seconds...");
+                    OnLog?.Invoke(this,new LogEventArgs($"Connection failed: {ex.Message}. Retrying in {5000 / 1000} seconds...", LogLevel.Warning));
                     await Task.Delay(5000);
             }
         }
@@ -50,7 +51,7 @@ public class MqttService : IMqttService
          
         
         await _mqttClient.SubscribeAsync(_mqttSettings.Topic);
-        Console.WriteLine($"connected to {_mqttSettings}");
+        OnLog?.Invoke(this,new LogEventArgs($"connected to {_mqttSettings}", LogLevel.Success));
         _mqttClient.ApplicationMessageReceivedAsync += HandleReceivedMessage;
         
     }
@@ -64,7 +65,7 @@ public class MqttService : IMqttService
     {
         var payload = Encoding.UTF8.GetString(e.ApplicationMessage.Payload);
         var deserializedPayload = JObject.Parse(payload);
-        Console.WriteLine($"Received message: {deserializedPayload}");
+        OnLog?.Invoke(this,new LogEventArgs($"Received message: {deserializedPayload}"));
         using (var scope = _serviceProvider.CreateScope())
         {
             var ctx = scope.ServiceProvider.GetRequiredService<ISensorDataService>();

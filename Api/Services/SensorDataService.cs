@@ -7,22 +7,23 @@ namespace Api;
 public class SensorDataSevice : ISensorDataService
 {
     private readonly IMongoCollection<SensorData> _sensorDataCollection;
-    
+    private event EventHandler<LogEventArgs> OnLog;
 
-    public SensorDataSevice(
-        IOptions<SensorsDatabaseSettings> sensorsDatabaseSettings)
+    public SensorDataSevice(IOptions<SensorsDatabaseSettings> sensorsDatabaseSettings)
     {
-        Console.WriteLine("connecting to db");
+    
+        OnLog += Logger.Instance.Log;
+        OnLog?.Invoke(this,new LogEventArgs("connecting to db", LogLevel.Warning));
         var mongoClient = new MongoClient(
             sensorsDatabaseSettings.Value.ConnectionString);
 
         var mongoDatabase = mongoClient.GetDatabase(
             sensorsDatabaseSettings.Value.DatabaseName);
 
-        Console.WriteLine(sensorsDatabaseSettings.Value.SensorsCollectionName);
+        OnLog?.Invoke(this,new LogEventArgs($"Collection: {sensorsDatabaseSettings.Value.SensorsCollectionName}",LogLevel.Debug));
         _sensorDataCollection = mongoDatabase.GetCollection<SensorData>(
             sensorsDatabaseSettings.Value.SensorsCollectionName);
-        Console.WriteLine("connected to db");
+        OnLog?.Invoke(this,new LogEventArgs("connected to db", LogLevel.Success));
     }
 
     public async Task<List<SensorData>> GetAsync() =>
@@ -39,12 +40,12 @@ public class SensorDataSevice : ISensorDataService
     public async Task CreateAsync(SensorData newSensorData) {
         try
         {
-        Console.WriteLine(newSensorData.Timestamp.ToString());
+        OnLog?.Invoke(this,new LogEventArgs(newSensorData.Timestamp.ToString()));
          _sensorDataCollection.InsertOne(newSensorData);
         }
         catch (Exception e)
         {
-            Console.WriteLine(e.Message);
+            OnLog?.Invoke(this,new LogEventArgs(e.Message,LogLevel.Error));
         }
         
     }
