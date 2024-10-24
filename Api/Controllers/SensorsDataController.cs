@@ -5,8 +5,8 @@ namespace Api.Controllers;
 [Route("[controller]")]
 public class SensorsController : ControllerBase{
     private readonly ILogger<SensorsController> _logger;
-    private readonly ISensorsService _sensorsService;
-    public SensorsController(ILogger<SensorsController> logger, ISensorsService sensorsService)
+    private readonly ISensorDataService _sensorsService;
+    public SensorsController(ILogger<SensorsController> logger, ISensorDataService sensorsService)
     {
         _logger = logger;
         _sensorsService = sensorsService;
@@ -16,6 +16,14 @@ public class SensorsController : ControllerBase{
     public async Task<List<SensorData>> Get()
     {
         var sensorData = await _sensorsService.GetAsync();
+        return sensorData;
+        
+    }
+
+    [HttpGet("latest",Name="GetLatestData")]
+    public async Task<List<SensorData>> GetLatest()
+    {
+        var sensorData = await _sensorsService.GetNewestDataAsync();
         return sensorData;
         
     }

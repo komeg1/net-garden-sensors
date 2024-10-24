@@ -5,3 +5,5 @@ Api/bin/
 **/bin
 **/obj/
 **/obj
+**/venv/
+**/__pycache__/
