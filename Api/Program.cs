@@ -28,7 +28,7 @@ public class Program
             
         builder.Services.Configure<MqttSettings>(builder.Configuration.GetSection("MqttSettings"));
 
-        builder.Services.AddSingleton<SensorDataService>();
+        builder.Services.AddSingleton<ISensorDataService,SensorDataService>();
         builder.Services.AddSingleton<MqttService>();
 
         var app = builder.Build();
@@ -43,7 +43,7 @@ public class Program
         app.UseHttpsRedirection();
 
         app.UseAuthorization(); 
-        var sensorService = app.Services.GetRequiredService<SensorDataService>();
+        var sensorService = app.Services.GetRequiredService<ISensorDataService>();
         app.MapGet("/sse", async (HttpContext ctx) =>
         {
             ctx.Response.Headers.Append(HeaderNames.ContentType, "text/event-stream");

@@ -1,4 +1,5 @@
 
+using System.Collections.Concurrent;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 
@@ -6,7 +7,8 @@ namespace Api;
 
 public interface ISensorDataService
 {
-   
+   private static readonly BlockingCollection<SensorData> _dataQueue = new BlockingCollection<SensorData>();
+    public BlockingCollection<SensorData> DataQueue => _dataQueue;
 
     Task<List<SensorData>> GetAsync();
     Task<SensorData?> GetAsync(string id);
