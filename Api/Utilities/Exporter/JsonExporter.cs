@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 
 public class JsonExporter<T> : FileExporter<T>
 {
-    private static JsonExporter<T> _instance;
+    private static JsonExporter<T>? _instance;
     private JsonExporter() {}
 
     public static JsonExporter<T> Instance

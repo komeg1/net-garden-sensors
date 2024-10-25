@@ -70,7 +70,7 @@ public class MqttService : IMqttService
 
         using (var scope = _serviceProvider.CreateScope())
         {
-            var ctx = scope.ServiceProvider.GetRequiredService<ISensorDataService>();
+            var ctx = scope.ServiceProvider.GetRequiredService<SensorDataService>();
             var guid = GenerateObjectId();
 
         await ctx.CreateAsync(new SensorData{Id=guid,

@@ -2,14 +2,17 @@
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using MongoDB.Bson;
+using System.Collections.Concurrent;
 namespace Api;
 
-public class SensorDataSevice : ISensorDataService
+public class SensorDataService : ISensorDataService
 {
     private readonly IMongoCollection<SensorData> _sensorDataCollection;
-    private event EventHandler<LogEventArgs> OnLog;
+    private event EventHandler<LogEventArgs>? OnLog;
+    private static readonly BlockingCollection<SensorData> _dataQueue = new BlockingCollection<SensorData>();
+    public BlockingCollection<SensorData> DataQueue => _dataQueue;
 
-    public SensorDataSevice(IOptions<SensorsDatabaseSettings> sensorsDatabaseSettings)
+    public SensorDataService(IOptions<SensorsDatabaseSettings> sensorsDatabaseSettings)
     {
     
         OnLog += Logger.Instance.Log;
@@ -40,8 +43,10 @@ public class SensorDataSevice : ISensorDataService
     public async Task CreateAsync(SensorData newSensorData) {
         try
         {
-        OnLog?.Invoke(this,new LogEventArgs(newSensorData.Timestamp.ToString()));
-         _sensorDataCollection.InsertOne(newSensorData);
+            _sensorDataCollection.InsertOne(newSensorData);
+            OnLog?.Invoke(this,new LogEventArgs("Successfully added to db",LogLevel.Success));
+            _dataQueue.Add(newSensorData);
+
         }
         catch (Exception e)
         {
@@ -85,10 +90,10 @@ public class SensorDataSevice : ISensorDataService
             return null;
 
         if (format == ExportFormat.JSON)
-            return Utils.ExportToJson(data, Guid.NewGuid());
+            return Utils.ExportToJson(data);
 
         if (format == ExportFormat.CSV)
-            return Utils.ExportToCsv(data, Guid.NewGuid());
+            return Utils.ExportToCsv(data);
 
         return null;
 

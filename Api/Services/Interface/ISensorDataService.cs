@@ -17,4 +17,6 @@ public interface ISensorDataService
     Task<List<SensorData>> GetNewestDataAsync();
     Task<byte[]> ExportToFile(ExportFormat format,PipelineDefinition<SensorData, SensorData>? filter=null);
 
+
+
 }

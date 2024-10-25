@@ -3,7 +3,7 @@ using Api;
 
 public class CsvExporter<T> : FileExporter<T>
 {
-    private static CsvExporter<T> _instance;
+    private static CsvExporter<T>? _instance;
     private CsvExporter() {}
 
     public static CsvExporter<T> Instance
@@ -24,12 +24,19 @@ public class CsvExporter<T> : FileExporter<T>
         {
             var sb = new StringBuilder();
             var filePath = GetFilePath(ExportFormat.CSV);
-            var header = string.Join("; ", typeof(T).GetProperties().Select(p => p.Name));
+            var header = string.Join("; ", typeof(T)
+                                .GetProperties()
+                                .Select(p => p.Name));
+            
             sb.AppendLine(header);
 
             foreach (var item in data)
             {
-                var line = string.Join("; ", typeof(T).GetProperties().Select(p => p.GetValue(item, null)?.ToString() ?? string.Empty));
+                var line = string.Join("; ", typeof(T)
+                                    .GetProperties()
+                                    .Select(p => p
+                                                .GetValue(item, null)?
+                                                .ToString() ?? string.Empty));
                 sb.AppendLine(line);
             }
 

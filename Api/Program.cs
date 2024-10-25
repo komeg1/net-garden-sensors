@@ -1,11 +1,21 @@
 
 namespace Api;
+using System.Text.Json;
+using Microsoft.Net.Http.Headers;
 
 public class Program
 {
     public static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
+
+        builder.Services.AddCors(options =>
+        {
+            options.AddPolicy("AllowSpecificOrigin",
+                builder => builder.WithOrigins("http://127.0.0.1:5500") 
+                                .AllowAnyHeader()
+                                .AllowAnyMethod());
+        });
 
         // Add services to the container.
 
@@ -18,12 +28,11 @@ public class Program
             
         builder.Services.Configure<MqttSettings>(builder.Configuration.GetSection("MqttSettings"));
 
-        builder.Services.AddSingleton<ISensorDataService,SensorDataSevice>();
+        builder.Services.AddSingleton<SensorDataService>();
         builder.Services.AddSingleton<MqttService>();
 
-
         var app = builder.Build();
-
+        app.UseCors("AllowSpecificOrigin");
         // Configure the HTTP request pipeline.
         if (app.Environment.IsDevelopment())
         {
@@ -33,17 +42,29 @@ public class Program
 
         app.UseHttpsRedirection();
 
-        app.UseAuthorization();
-
+        app.UseAuthorization(); 
+        var sensorService = app.Services.GetRequiredService<SensorDataService>();
+        app.MapGet("/sse", async (HttpContext ctx) =>
+        {
+            ctx.Response.Headers.Append(HeaderNames.ContentType, "text/event-stream");
+            while (!ctx.RequestAborted.IsCancellationRequested)
+            {
+                if(sensorService.DataQueue.TryTake(out var data))
+                {
+                await ctx.Response.WriteAsync($"data: ");
+                await JsonSerializer.SerializeAsync(ctx.Response.Body, data);
+                await ctx.Response.WriteAsync($"\n\n");
+                await ctx.Response.Body.FlushAsync();
+                }
+            };
+        });
 
         app.MapControllers();
+
         //start mqtt
-        
         var mqttService = app.Services.GetRequiredService<MqttService>();
-        
         Task.Run(() =>mqttService.Connect()).Wait();
-        
-        var sensorService = app.Services.GetRequiredService<ISensorDataService>();
+
 
         
         app.Run();

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sensor Data SSE</title>
+</head>
+<body>
+    <h1>Real-Time Sensor Data</h1>
+    <div id="data-container">
+        <!-- New data will appear here -->
+    </div>
+
+    <script>
+        // Connect to the SSE endpoint
+        const eventSource = new EventSource("http://localhost:5230/sse"); // Adjust the URL to your server's address
+
+        // Listen for messages
+        eventSource.onmessage = function(event) {
+            // Parse the received data
+            const data = JSON.parse(event.data);
+
+            // Display the data in the HTML
+            const dataContainer = document.getElementById("data-container");
+            const dataItem = document.createElement("p");
+            dataItem.textContent = `Sensor ID: ${data.SensorId}, Timestamp: ${data.Timestamp}`;
+            dataContainer.appendChild(dataItem);
+        };
+
+        // Handle connection errors
+        eventSource.onerror = function(error) {
+            console.error("Error with SSE connection:", error);
+        };
+    </script>
+</body>
+</html>

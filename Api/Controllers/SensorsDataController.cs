@@ -61,14 +61,12 @@ public class SensorsController : ControllerBase{
 
         if(sensorId == -1 && type == "" && startDate == default && endDate == default && sort ==SortType.NONE)
         {
-            return File(_sensorsService
-                        .ExportToFile(exportFormat).Result 
-                    ,"application/octet-stream"
-                    , $"{DateTime.UtcNow}.{(exportFormat == ExportFormat.CSV ? "csv" : "json")}");
+            return File(_sensorsService.ExportToFile(exportFormat).Result 
+                        ,"application/octet-stream"
+                        , $"{DateTime.UtcNow}.{(exportFormat == ExportFormat.CSV ? "csv" : "json")}");
         }
 
-        return File(_sensorsService
-                    .ExportToFile(exportFormat,
+        return File(_sensorsService.ExportToFile(exportFormat,
                         DbPipelineBuilder.BuildFromRequest(new SensorDataFilterOptions
                         {
                             SensorId = sensorId,
@@ -80,10 +78,5 @@ public class SensorsController : ControllerBase{
                 )).Result
                     ,"application/octet-stream"
                     , $"{DateTime.UtcNow}.{(exportFormat == ExportFormat.CSV ? "csv" : "json")}");
-
-        
-    
-
-
     }
 }

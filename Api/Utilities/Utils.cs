@@ -7,12 +7,12 @@ public static class Utils{
     public static T Deserialize<T>(string json){
         return _s.Deserialize<T>(new JsonTextReader(new StringReader(json)))!;
     }   
-    public static byte[] ExportToJson<T>(List<T> data, Guid userGuid)
+    public static byte[] ExportToJson<T>(List<T> data)
     {
         return Export(JsonExporter<T>.Instance, data);
     }
 
-    public static byte[] ExportToCsv<T>(List<T> data, Guid userGuid)
+    public static byte[] ExportToCsv<T>(List<T> data)
     {
         return Export(CsvExporter<T>.Instance, data);
     }
