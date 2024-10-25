@@ -1,0 +1,2 @@
+keyboard==0.13.5
+paho_mqtt==2.1.0
