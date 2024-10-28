@@ -7,8 +7,9 @@
 </head>
 <body>
     <h1>Real-Time Sensor Data</h1>
+
+    <div id="avg-val-container"></div>
     <div id="data-container">
-        <!-- New data will appear here -->
     </div>
 
     <script>
@@ -37,19 +38,62 @@
         });
 }
         window.onload = fetchData
-            
-       
+    var sensorData = {
+            0: { latest: 0, unit: "", values: [] },
+            1: { latest: 0, unit: "", values: [] },
+            2: { latest: 0, unit: "", values: [] },
+            3: { latest: 0, unit: "", values: [] },
+            4: { latest: 0, unit: "", values: [] },
+            5: { latest: 0, unit: "", values: [] },
+            6: { latest: 0, unit: "", values: [] },
+            7: { latest: 0, unit: "", values: [] },
+            8: { latest: 0, unit: "", values: [] },
+            9: { latest: 0, unit: "", values: [] },
+            10: { latest: 0, unit: "", values: [] },
+            11: { latest: 0, unit: "", values: [] },
+            12: { latest: 0, unit: "", values: [] },
+            13: { latest: 0, unit: "", values: [] },
+            14: { latest: 0, unit: "", values: [] },
+            15: { latest: 0, unit: "", values: [] }
+};
+    
+    var div = document.getElementById("avg-val-container");
+
+
+    for (let key in sensorData){
+        var p = document.createElement("p");
+        p.setAttribute("id", `sensor-${key}`);
+        p.innerText = `Sensor ${key}: Latest: ${sensorData[key].latest} ${sensorData[key].unit}, Avg: 0`;
+        div.appendChild(p);
+    }
+  
+
         const eventSource = new EventSource("http://localhost:5230/sse");
-
-
         eventSource.onmessage = function(event) {
-
             const data = JSON.parse(event.data);
+            const sensorId = data.SensorId;
+            const value = data.Value;
+            const unit = data.Unit;
 
-         
+            if (sensorData[sensorId]) {
+                sensorData[sensorId].latest = value;
+                sensorData[sensorId].unit = unit;
+
+                sensorData[sensorId].values.push(value);
+                if (sensorData[sensorId].values.length > 100) {
+                    sensorData[sensorId].values.shift();  
+                }
+
+                const sum = sensorData[sensorId].values.reduce((acc, val) => acc + val, 0);
+                const avg = (sum / sensorData[sensorId].values.length).toFixed(2);
+
+                const p = document.getElementById(`sensor-${sensorId}`);
+                p.innerText = `Sensor ${sensorId}: Latest: ${value} ${unit}, Avg: ${avg} ${unit}`;
+            }
+
             const dataContainer = document.getElementById("data-container");
             const dataItem = document.createElement("p");
-            dataItem.textContent = `Sensor ID: ${data.SensorId}, Timestamp: ${data.Timestamp}`;
+            dataItem.textContent = `Sensor ID: ${sensorId}, Timestamp: ${data.Timestamp}, Value: ${value} ${unit}`;
             dataContainer.appendChild(dataItem);
         };
 

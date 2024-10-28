@@ -65,12 +65,12 @@ public class MqttService : IMqttService
     {
         var payload = Encoding.UTF8.GetString(e.ApplicationMessage.Payload);
         var deserializedPayload = JObject.Parse(payload);
-        OnLog?.Invoke(this,new LogEventArgs($"Received message: {deserializedPayload}"));
+        OnLog?.Invoke(this,new LogEventArgs($"Received message: {deserializedPayload}",LogLevel.Debug));
 
 
         using (var scope = _serviceProvider.CreateScope())
         {
-            var ctx = scope.ServiceProvider.GetRequiredService<SensorDataService>();
+            var ctx = scope.ServiceProvider.GetRequiredService<ISensorDataService>();
             var guid = GenerateObjectId();
 
         await ctx.CreateAsync(new SensorData{Id=guid,

@@ -55,6 +55,7 @@ public class Program
                 await JsonSerializer.SerializeAsync(ctx.Response.Body, data);
                 await ctx.Response.WriteAsync($"\n\n");
                 await ctx.Response.Body.FlushAsync();
+                Logger.Instance.Log(nameof(ctx),message:new LogEventArgs(message:"Send SSE event",LogLevel.Debug));
                 }
             };
         });

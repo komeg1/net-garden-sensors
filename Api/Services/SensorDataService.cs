@@ -44,7 +44,7 @@ public class SensorDataService : ISensorDataService
         try
         {
             _sensorDataCollection.InsertOne(newSensorData);
-            OnLog?.Invoke(this,new LogEventArgs("Successfully added to db",LogLevel.Success));
+            OnLog?.Invoke(this,new LogEventArgs("Successfully added to db",LogLevel.Debug));
             _dataQueue.Add(newSensorData);
 
         }
