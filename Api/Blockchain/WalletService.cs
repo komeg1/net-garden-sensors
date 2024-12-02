@@ -6,11 +6,13 @@ namespace Api
     public class WalletService
     {
         private readonly string _mnemonic;
+        private event EventHandler<LogEventArgs>? OnLog;
 
         public WalletService(string mnemonic)
         {
+            OnLog += Logger.Instance.Log;
             _mnemonic = mnemonic;
-            Console.WriteLine("Wallet service started");
+            OnLog?.Invoke(this, new LogEventArgs("Wallet service started", LogLevel.Success));
         }
 
         public Account GenerateSensorWallet(int sensorId)

@@ -1,4 +1,5 @@
-﻿using Nethereum.Hex.HexTypes;
+﻿using Nethereum.BlockchainProcessing.BlockStorage.Entities;
+using Nethereum.Hex.HexTypes;
 using Nethereum.Web3;
 using Nethereum.Web3.Accounts;
 using System.Numerics;
@@ -11,6 +12,7 @@ namespace Api
         private static string privateKey = "";
         private static string infuraUrl = "";
         private static Web3 web3;
+        private event EventHandler<LogEventArgs>? OnLog;
         private static string contractABI = @"[
 			{
 				""inputs"": [],
@@ -256,9 +258,10 @@ namespace Api
 
         public BlockchainService()
         {
+            OnLog += Logger.Instance.Log;
             var account = new Account(privateKey);
             web3 = new Web3(account, infuraUrl);
-			Console.WriteLine("Blockchain service started");
+            OnLog?.Invoke(this, new LogEventArgs("Blockchain service started", LogLevel.Success));
 
         }
 
@@ -278,11 +281,11 @@ namespace Api
                     new HexBigInteger(21000),
                     new HexBigInteger(amountInWei)
                 );
-                Console.WriteLine($"Tokens sent! Transaction hash: {transactionHash}");
+                OnLog?.Invoke(this, new LogEventArgs($"Tokens sent! Transaction hash: {transactionHash}", LogLevel.Success));
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error while sending tokens: {ex.Message}");
+                OnLog?.Invoke(this, new LogEventArgs($"Error while sending tokens: {ex.Message}", LogLevel.Error));
             }
         }
     }
