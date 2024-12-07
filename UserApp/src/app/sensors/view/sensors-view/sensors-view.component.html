@@ -1,0 +1,97 @@
+<div class="container mt-4">
+  <h2 class="mb-3">Sensors</h2>
+
+  <!-- filtry -->
+  <div  class="row mb-3">
+    <div class="col-md-3">
+      <label for="sensorId" class="form-label">Sensor ID</label>
+      <input type="number" id="sensorId" class="form-control" [(ngModel)]="filter.sensorId" placeholder="Enter Sensor ID" />
+    </div>
+    <div class="col-md-3">
+      <label for="type" class="form-label">Type</label>
+      <input type="text" id="type" class="form-control" [(ngModel)]="filter.type" placeholder="Enter Type" />
+    </div>
+    <div class="col-md-3">
+      <label for="startDate" class="form-label">Start Date</label>
+      <input type="date" id="startDate" class="form-control" [(ngModel)]="filter.startDate" />
+    </div>
+    <div class="col-md-3">
+      <label for="endDate" class="form-label">End Date</label>
+      <input type="date" id="endDate" class="form-control" [(ngModel)]="filter.endDate" />
+    </div>
+  </div>
+  <div class="row mb-3">
+    <div class="col-md-3">
+      <label for="sort" class="form-label">Sort</label>
+      <select id="sort" class="form-control" [(ngModel)]="filter.sort">
+        <option value="NONE">None</option>
+        <option value="ASCENDING">Ascending</option>
+        <option value="DESCENDING">Descending</option>
+      </select>
+    </div>
+  </div>
+  <div class="row mb-3">
+    <div class="col-md-12 text-end">
+      <button class="btn gradient-light me-2" (click)="applyFilters()">Apply Filters</button>
+    </div>
+  </div>
+
+  <!-- table with sensor data  -->
+  <table *ngIf="paginatedData && paginatedData.length != 0"  class="table table-striped">
+    <thead>
+    <tr>
+      <th>ID</th>
+      <th>Value</th>
+      <th>Location</th>
+      <th>Unit</th>
+      <th>TimeStamp</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let sensor of paginatedData">
+      <td>{{ sensor.sensorId }}</td>
+      <td>{{ sensor.value }}</td>
+      <td>{{ sensor.location}}</td>
+      <td>{{ sensor.unit}}</td>
+      <td>{{ sensor.timestamp}}</td>
+    </tr>
+    </tbody>
+  </table>
+
+  <!-- last value and average  -->
+  <div *ngIf="lastSensorData !== null && avgSensorData !== null" class="mt-4">
+    <h3>Last Data and Average</h3>
+    <div class="row">
+      <div class="col-md-6">
+        <strong>Last Value:</strong> {{ lastSensorData.value }}
+      </div>
+      <div class="col-md-6">
+        <strong>Average Value (Last 100 Records):</strong> {{ avgSensorData | number:'1.2-2' }}
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="sensorData.length == 0" class="alert alert-info">
+    No data to display.
+  </div>
+
+  <div *ngIf="errorMessage" class="alert alert-danger">
+    {{ errorMessage }}
+  </div>
+
+  <!-- pagination navigation  -->
+  <div class="d-flex justify-content-between align-items-center mt-4">
+    <button class="btn btn-secondary" (click)="prevPage()" [disabled]="currentPage === 1">Previous</button>
+    <span>Page {{ currentPage }} of {{ Math.ceil(sensorData.length / pageSize) }}</span>
+    <button class="btn btn-secondary" (click)="nextPage()"
+            [disabled]="currentPage === Math.ceil(sensorData.length / pageSize)">Next</button>
+  </div>
+
+  <!-- buttons  -->
+  <div class="mt-4">
+    <button class="btn gradient-light me-2" (click)="seeCharts()">See Chart</button>
+    <button class="btn gradient-light me-2" (click)="downloadCSV()">Download CSV</button>
+    <button class="btn gradient-light" (click)="downloadJSON()">Download JSON</button>
+  </div>
+
+</div>
