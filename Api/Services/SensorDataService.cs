@@ -26,7 +26,7 @@ public class SensorDataService : ISensorDataService
         OnLog?.Invoke(this,new LogEventArgs($"Collection: {sensorsDatabaseSettings.Value.SensorsCollectionName}",LogLevel.Debug));
         _sensorDataCollection = mongoDatabase.GetCollection<SensorData>(
             sensorsDatabaseSettings.Value.SensorsCollectionName);
-        OnLog?.Invoke(this,new LogEventArgs("connected to db", LogLevel.Success));
+        OnLog?.Invoke(this,new LogEventArgs($"connected to {sensorsDatabaseSettings.Value.DatabaseName} db", LogLevel.Success));
     }
 
     public async Task<List<SensorData>> GetAsync() =>
