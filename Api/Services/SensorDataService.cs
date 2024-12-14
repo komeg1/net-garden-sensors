@@ -10,7 +10,7 @@ public class SensorDataService : ISensorDataService
     private readonly IMongoCollection<SensorData> _sensorDataCollection;
     private readonly WalletService _walletService;
     private readonly BlockchainService _blockchainService;
-    private const int REWARD = 10;
+    private const decimal REWARD = 0.0000001m;
     private event EventHandler<LogEventArgs>? OnLog;
     private static readonly BlockingCollection<SensorData> _dataQueue = new BlockingCollection<SensorData>();
     public BlockingCollection<SensorData> DataQueue => _dataQueue;
@@ -54,6 +54,10 @@ public class SensorDataService : ISensorDataService
             OnLog?.Invoke(this,new LogEventArgs("Successfully added to db",LogLevel.Debug));
             _dataQueue.Add(newSensorData);
             var wallet  = _walletService.GetSensorWalletAddress(newSensorData.SensorId);
+            if (string.IsNullOrEmpty(wallet)) {
+                OnLog?.Invoke(this, new LogEventArgs("Invalid wallet address", LogLevel.Error));
+                return;
+            }
             _blockchainService.RewardSensorAsync(wallet, REWARD);
         }
         catch (Exception e)

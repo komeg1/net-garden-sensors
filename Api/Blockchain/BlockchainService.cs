@@ -1,4 +1,4 @@
-﻿using Nethereum.BlockchainProcessing.BlockStorage.Entities;
+using Nethereum.BlockchainProcessing.BlockStorage.Entities;
 using Nethereum.Hex.HexTypes;
 using Nethereum.Web3;
 using Nethereum.Web3.Accounts;
@@ -267,21 +267,63 @@ namespace Api
 
         public async Task RewardSensorAsync(string sensorWalletAddress, decimal tokenAmount)
         {
+    try
+    {
+        OnLog?.Invoke(this, new LogEventArgs($"Sending {tokenAmount} tokens to {sensorWalletAddress}", LogLevel.Debug));
+
+        // Convert tokenAmount to Wei
+        var amountInWei = Web3.Convert.ToWei(tokenAmount, 18);
+
+        // Get the contract instance
             var contract = web3.Eth.GetContract(contractABI, contractAddress);
             var transferFunction = contract.GetFunction("transfer");
 
-            var decimals = 18;
-            var amountInWei = Web3.Convert.ToWei(tokenAmount, decimals);
+        // Validate wallet address
+        if (!Web3.IsChecksumAddress(sensorWalletAddress))
+        {
+            sensorWalletAddress = Web3.ToChecksumAddress(sensorWalletAddress);
+        }
 
-            try
-            {
+        // Check sender balance
+        var senderBalance = await contract.GetFunction("balanceOf")
+            .CallAsync<BigInteger>(web3.TransactionManager.Account.Address);
+        if (senderBalance < amountInWei)
+        {
+            throw new Exception("Insufficient token balance.");
+        }
+
+        // Estimate gas
+        OnLog?.Invoke(this, new LogEventArgs($"Estimating gas for transaction", LogLevel.Debug));
+        HexBigInteger gasEstimate;
+
+        try
+        {
+			gasEstimate = await transferFunction.EstimateGasAsync(
+				web3.TransactionManager.Account.Address,
+				null,
+				sensorWalletAddress,
+				amountInWei
+			);
+        }
+        catch
+        {
+            // Fallback gas limit
+            gasEstimate = new HexBigInteger(300000);
+            OnLog?.Invoke(this, new LogEventArgs("Gas estimation failed. Using fallback gas limit.", LogLevel.Warning));
+        }
+
+        OnLog?.Invoke(this, new LogEventArgs($"Gas estimate: {gasEstimate.Value}", LogLevel.Debug));
+
+        // Send the transaction
                 var transactionHash = await transferFunction.SendTransactionAsync(
-                    web3.TransactionManager.Account.Address,
+            from: web3.TransactionManager.Account.Address,
+            gas: gasEstimate,
+            value: null,
                     sensorWalletAddress,
-                    new HexBigInteger(21000),
-                    new HexBigInteger(amountInWei)
+            amountInWei
                 );
-                OnLog?.Invoke(this, new LogEventArgs($"Tokens sent! Transaction hash: {transactionHash}", LogLevel.Success));
+
+        OnLog?.Invoke(this, new LogEventArgs($"Transaction successful: {transactionHash}", LogLevel.Success));
             }
             catch (Exception ex)
             {
@@ -289,5 +331,4 @@ namespace Api
             }
         }
     }
-
 }
