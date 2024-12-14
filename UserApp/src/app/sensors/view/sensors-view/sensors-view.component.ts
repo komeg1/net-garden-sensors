@@ -34,7 +34,6 @@ export class SensorsViewComponent implements OnInit{
   }
 
   /* get data from sensors */
-  //TODO: get data "live"
   getData(): void {
     this.sensorService.getFilteredData(this.filter).subscribe({
       next: (data) => {
@@ -48,7 +47,6 @@ export class SensorsViewComponent implements OnInit{
   }
 
   /* get last data from sensors */
-  //TODO: get data "live"
   getLastData(): void {
     this.sensorService.getLastData().subscribe({
       next: (data) => {
@@ -74,6 +72,19 @@ export class SensorsViewComponent implements OnInit{
     this.getData();
   }
 
+  /* clear all filters */
+  clearFilters(): void {
+    this.filter = {
+      sensorId: null,
+      type: '',
+      startDate: '',
+      endDate: '',
+      sort: 'NONE',
+    };
+    this.currentPage = 1;
+    this.getData();
+  }
+
   /* display chart  */
   //TODO
   seeCharts(){
@@ -82,7 +93,7 @@ export class SensorsViewComponent implements OnInit{
 
   /* download CSV with filtered data sensors */
   downloadCSV(): void {
-    this.sensorService.exportData(this.filter, 'csv').subscribe({
+    this.sensorService.exportData(this.filter, 'CSV').subscribe({
       next: (response) => this.downloadFile(response, 'sensors_data.csv'),
       error: (err) => {
         this.errorMessage = 'Failed to download CSV file.';
@@ -92,8 +103,10 @@ export class SensorsViewComponent implements OnInit{
 
   /* download JSON with filtered data sensors */
   downloadJSON(): void {
-    this.sensorService.exportData(this.filter, 'json').subscribe({
-      next: (response) => this.downloadFile(response, 'sensors_data.json'),
+    this.sensorService.exportData(this.filter, 'JSON').subscribe({
+      next: (response) =>{
+        console.log("downloadFile called");
+        this.downloadFile(response, 'sensors_data.json');},
       error: (err) => {
         this.errorMessage = 'Failed to download JSON file.';
       }

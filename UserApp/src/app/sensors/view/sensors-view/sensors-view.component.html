@@ -33,6 +33,7 @@
   <div class="row mb-3">
     <div class="col-md-12 text-end">
       <button class="btn gradient-light me-2" (click)="applyFilters()">Apply Filters</button>
+      <button class="btn gradient-light me-2" (click)="clearFilters()">Clear</button>
     </div>
   </div>
 
@@ -58,17 +59,12 @@
     </tbody>
   </table>
 
-  <!-- last value and average  -->
-  <div *ngIf="lastSensorData !== null && avgSensorData !== null" class="mt-4">
-    <h3>Last Data and Average</h3>
-    <div class="row">
-      <div class="col-md-6">
-        <strong>Last Value:</strong> {{ lastSensorData.value }}
-      </div>
-      <div class="col-md-6">
-        <strong>Average Value (Last 100 Records):</strong> {{ avgSensorData | number:'1.2-2' }}
-      </div>
-    </div>
+  <!-- pagination navigation  -->
+  <div class="d-flex justify-content-between align-items-center mt-4">
+    <button class="btn btn-secondary" (click)="prevPage()" [disabled]="currentPage === 1">Previous</button>
+    <span>Page {{ currentPage }} of {{ Math.ceil(sensorData.length / pageSize) }}</span>
+    <button class="btn btn-secondary" (click)="nextPage()"
+            [disabled]="currentPage === Math.ceil(sensorData.length / pageSize)">Next</button>
   </div>
 
   <div *ngIf="sensorData.length == 0" class="alert alert-info">
@@ -79,19 +75,13 @@
     {{ errorMessage }}
   </div>
 
-  <!-- pagination navigation  -->
-  <div class="d-flex justify-content-between align-items-center mt-4">
-    <button class="btn btn-secondary" (click)="prevPage()" [disabled]="currentPage === 1">Previous</button>
-    <span>Page {{ currentPage }} of {{ Math.ceil(sensorData.length / pageSize) }}</span>
-    <button class="btn btn-secondary" (click)="nextPage()"
-            [disabled]="currentPage === Math.ceil(sensorData.length / pageSize)">Next</button>
-  </div>
-
   <!-- buttons  -->
   <div class="mt-4">
     <button class="btn gradient-light me-2" (click)="seeCharts()">See Chart</button>
     <button class="btn gradient-light me-2" (click)="downloadCSV()">Download CSV</button>
     <button class="btn gradient-light" (click)="downloadJSON()">Download JSON</button>
   </div>
+
+  <div class="mt-5"></div>
 
 </div>
