@@ -330,5 +330,33 @@ namespace Api
                 OnLog?.Invoke(this, new LogEventArgs($"Error while sending tokens: {ex.Message}", LogLevel.Error));
             }
         }
+	
+		public async Task<decimal> GetBalanceAsync(string sensorWalletAddress)
+		{
+			try
+			{
+				OnLog?.Invoke(this, new LogEventArgs($"Getting balance for {sensorWalletAddress}", LogLevel.Debug));
+
+				var contract = web3.Eth.GetContract(contractABI, contractAddress);
+				var balanceFunction = contract.GetFunction("balanceOf");
+
+				if (!Web3.IsChecksumAddress(sensorWalletAddress))
+				{
+					sensorWalletAddress = Web3.ToChecksumAddress(sensorWalletAddress);
+				}
+
+				var balance = await balanceFunction.CallAsync<BigInteger>(sensorWalletAddress);
+				var balanceInEth = Web3.Convert.FromWei(balance, 18);
+
+				OnLog?.Invoke(this, new LogEventArgs($"Balance: {balanceInEth} tokens", LogLevel.Debug));
+
+				return balanceInEth;
+			}
+			catch (Exception ex)
+			{
+				OnLog?.Invoke(this, new LogEventArgs($"Error while getting balance: {ex.Message}", LogLevel.Error));
+				return 0;
+			}
+		}
     }
 }
