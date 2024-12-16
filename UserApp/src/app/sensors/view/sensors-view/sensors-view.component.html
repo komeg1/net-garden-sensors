@@ -67,19 +67,81 @@
             [disabled]="currentPage === Math.ceil(sensorData.length / pageSize)">Next</button>
   </div>
 
-  <div *ngIf="sensorData.length == 0" class="alert alert-info">
+  <div *ngIf="sensorData.length == 0" class="alert alert-info item-space">
     No data to display.
   </div>
 
-  <div *ngIf="errorMessage" class="alert alert-danger">
+  <div *ngIf="errorMessage" class="alert alert-danger item-space">
     {{ errorMessage }}
   </div>
 
   <!-- buttons  -->
   <div class="mt-4">
-    <button class="btn gradient-light me-2" (click)="seeCharts()">See Chart</button>
+    <button class="btn gradient-light me-2" (click)="seeCharts()">{{ getChartsButtonText() }}</button>
     <button class="btn gradient-light me-2" (click)="downloadCSV()">Download CSV</button>
     <button class="btn gradient-light" (click)="downloadJSON()">Download JSON</button>
+  </div>
+
+  <div *ngIf="showChart && temperatureDataEmpty && densityDataEmpty && speedDataEmpty && powerDataEmpty" class="alert alert-info item-space">
+    No chart to display.
+  </div>
+
+  <div *ngIf="showChart && onlyOneChart()" class="container shadow rounded border p-2 item-space">
+    <canvas *ngIf="!temperatureDataEmpty" baseChart
+            [data]="chartConfigurationTemperature.data"
+            [options]="chartConfigurationTemperature.options"
+            [type]="chartConfigurationTemperature.type">
+    </canvas>
+    <canvas *ngIf="!densityDataEmpty" baseChart
+            [data]="chartConfigurationDensity.data"
+            [options]="chartConfigurationDensity.options"
+            [type]="chartConfigurationDensity.type">
+    </canvas>
+    <canvas *ngIf="!speedDataEmpty" baseChart
+            [data]="chartConfigurationSpeed.data"
+            [options]="chartConfigurationSpeed.options"
+            [type]="chartConfigurationSpeed.type">
+    </canvas>
+    <canvas *ngIf="!powerDataEmpty" baseChart
+            [data]="chartConfigurationPower.data"
+            [options]="chartConfigurationPower.options"
+            [type]="chartConfigurationPower.type">
+    </canvas>
+  </div>
+
+  <div *ngIf="showChart && !temperatureDataEmpty && !densityDataEmpty && !speedDataEmpty && !powerDataEmpty" class="container shadow rounded border p-2 item-space">
+    <div class="row">
+      <div class="col-md-6">
+        <canvas baseChart
+                [data]="chartConfigurationTemperature.data"
+                [options]="chartConfigurationTemperature.options"
+                [type]="chartConfigurationTemperature.type">
+        </canvas>
+      </div>
+      <div class="col-md-6">
+        <canvas baseChart
+                [data]="chartConfigurationDensity.data"
+                [options]="chartConfigurationDensity.options"
+                [type]="chartConfigurationDensity.type">
+        </canvas>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-6">
+        <canvas baseChart
+                [data]="chartConfigurationSpeed.data"
+                [options]="chartConfigurationSpeed.options"
+                [type]="chartConfigurationSpeed.type">
+        </canvas>
+      </div>
+      <div class="col-md-6">
+        <canvas baseChart
+                [data]="chartConfigurationPower.data"
+                [options]="chartConfigurationPower.options"
+                [type]="chartConfigurationPower.type">
+        </canvas>
+      </div>
+    </div>
   </div>
 
   <div class="mt-5"></div>

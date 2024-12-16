@@ -7,6 +7,7 @@ import { SensorsViewComponent } from './sensors/view/sensors-view/sensors-view.c
 import {HttpClientModule} from "@angular/common/http";
 import {FormsModule} from "@angular/forms";
 import { OverviewViewComponent } from './sensors/view/overview-view/overview-view.component';
+import {BaseChartDirective, provideCharts, withDefaultRegisterables} from "ng2-charts";
 
 @NgModule({
   declarations: [
@@ -18,9 +19,10 @@ import { OverviewViewComponent } from './sensors/view/overview-view/overview-vie
     BrowserModule,
     AppRoutingModule,
     HttpClientModule,
-    FormsModule
+    FormsModule,
+    BaseChartDirective,
   ],
-  providers: [],
+  providers: [provideCharts(withDefaultRegisterables())],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

@@ -2,6 +2,7 @@ import {Component, OnInit} from '@angular/core';
 import {SensorService} from "../../service/sensor.service";
 import {Sensor} from "../../model/Sensor";
 import {SensorFilter} from "../../model/SensorFilter";
+import {ChartConfiguration, ChartData, ChartOptions} from "chart.js";
 
 @Component({
   selector: 'app-sensors-view',
@@ -18,6 +19,8 @@ export class SensorsViewComponent implements OnInit{
   currentPage: number = 1;
   pageSize: number = 15;
 
+  showChart: boolean = false;
+
   filter: SensorFilter = {
     sensorId: null,
     type: '',
@@ -25,6 +28,46 @@ export class SensorsViewComponent implements OnInit{
     endDate: '',
     sort: 'NONE',
   };
+
+  chartDataTemperature: ChartData<'line'> = {
+    labels: [],
+    datasets: []
+  };
+  chartConfigurationTemperature: ChartConfiguration<'line'> = {
+    type: 'line',
+    data: this.chartDataTemperature
+  }
+  temperatureDataEmpty: boolean = false;
+
+  chartDataDensity: ChartData<'line'> = {
+    labels: [],
+    datasets: []
+  };
+  chartConfigurationDensity: ChartConfiguration<'line'> = {
+    type: 'line',
+    data: this.chartDataDensity
+  }
+  densityDataEmpty: boolean = false;
+
+  chartDataSpeed: ChartData<'line'> = {
+    labels: [],
+    datasets: []
+  };
+  chartConfigurationSpeed: ChartConfiguration<'line'> = {
+    type: 'line',
+    data: this.chartDataSpeed
+  }
+  speedDataEmpty: boolean = false;
+
+  chartDataPower: ChartData<'line'> = {
+    labels: [],
+    datasets: []
+  };
+  chartConfigurationPower: ChartConfiguration<'line'> = {
+    type: 'line',
+    data: this.chartDataPower
+  }
+  powerDataEmpty: boolean = false;
 
   constructor(private sensorService: SensorService) {}
 
@@ -70,6 +113,9 @@ export class SensorsViewComponent implements OnInit{
   applyFilters(): void {
     this.currentPage = 1;
     this.getData();
+    if (this.showChart) {
+      this.seeCharts();
+    }
   }
 
   /* clear all filters */
@@ -85,10 +131,143 @@ export class SensorsViewComponent implements OnInit{
     this.getData();
   }
 
-  /* display chart  */
-  //TODO
-  seeCharts(){
+  /* set chart axis titles */
+  setChartAxisTitles(chartConfig: ChartConfiguration<'line'>, xTitle: string, yTitle: string): void {
+    chartConfig.options = {
+      responsive: true,
+        spanGaps: true,
+      scales: {
+        x: {
+          title: {
+            display: true,
+            text: xTitle,
+          },
+          ticks: {
+            autoSkip: false,
+          }
+        },
+        y: {
+          title: {
+            display: true,
+            text: yTitle
+          }
+        }
+      },
+      plugins: {
+        legend: {
+          position: 'top',
+        },
+      },
+    };
+  }
 
+  /* get colors for lines in a chart */
+  getColorForLine(index: number): string {
+    const colors = ['rgb(173, 216, 230)', 'rgb(255, 0, 255)', 'rgb(75, 0, 130)', 'rgb(100, 149, 237)'];
+    return colors[index];
+  }
+
+  /* set presentation data for showing a chart */
+  setChartPresentation(chartData: ChartData,
+                       chartConfiguration: ChartConfiguration<'line'>,
+                       typeData: Sensor[],
+                       index: number,
+                       xTitle: string,
+                       yTitle: string): void {
+    chartData.labels = Array.from(new Set(typeData.map(data => data.timestamp)));
+    let color = 0;
+
+    for (let j = index; j <= 15; j+=4) {
+      const specificSensorData = typeData.filter(data => data.sensorId == j);
+
+      if (specificSensorData.length != 0) {
+        const datasetData = chartData.labels.map(timestamp => {
+          const match = specificSensorData.find(data => data.timestamp === timestamp);
+          return match ? match.value : null;
+        });
+
+        chartData.datasets.push({
+          data: datasetData,
+          label: "sensor: " + j,
+          borderColor: this.getColorForLine(color),
+          fill: false,
+        });
+
+        color += 1;
+      }
+    }
+    this.setChartAxisTitles(chartConfiguration, xTitle, yTitle);
+  }
+
+  /* clear chart data */
+  clearChartPresentation(chartData: ChartData, chartConfiguration: ChartConfiguration) {
+    chartData.labels = [];
+    chartData.datasets = [];
+
+    chartConfiguration.data = chartData;
+    chartConfiguration.options = {};
+  }
+
+  /* display chart */
+  seeCharts(){
+    this.showChart = !this.showChart;
+    if (this.showChart) {
+      for (let sensorType = 0; sensorType < 4; sensorType++) {
+        const typeData = this.sensorData.filter(data => data.sensorId % 4 == sensorType);
+        if (sensorType == 0) {
+          if (typeData.length == 0) {
+            this.temperatureDataEmpty = true;
+          }
+          else {
+            this.setChartPresentation(this.chartDataTemperature, this.chartConfigurationTemperature, typeData, sensorType, "Date", "Temperature");
+          }
+        }
+        else if (sensorType == 1) {
+          if (typeData.length == 0) {
+            this.densityDataEmpty = true;
+          }
+          else {
+            this.setChartPresentation(this.chartDataDensity, this.chartConfigurationDensity, typeData, sensorType, "Date", "Density");
+          }
+        }
+        else if (sensorType == 2) {
+          if (typeData.length == 0) {
+            this.speedDataEmpty = true;
+          }
+          else {
+            this.setChartPresentation(this.chartDataSpeed, this.chartConfigurationSpeed, typeData, sensorType, "Date", "Speed");
+          }
+        }
+        else if (sensorType == 3) {
+          if (typeData.length == 0) {
+            this.powerDataEmpty = true;
+          }
+          else {
+            this.setChartPresentation(this.chartDataPower, this.chartConfigurationPower, typeData, sensorType, "Date", "Power");
+          }
+        }
+      }
+    }
+    else {
+      this.clearChartPresentation(this.chartDataTemperature, this.chartConfigurationTemperature);
+      this.clearChartPresentation(this.chartDataDensity, this.chartConfigurationDensity);
+      this.clearChartPresentation(this.chartDataSpeed, this.chartConfigurationSpeed);
+      this.clearChartPresentation(this.chartDataPower, this.chartConfigurationPower);
+      this.temperatureDataEmpty = false;
+      this.densityDataEmpty = false;
+      this.speedDataEmpty = false;
+      this.powerDataEmpty = false;
+    }
+  }
+
+  /* change chart button text */
+  getChartsButtonText(): string {
+    return this.showChart ? 'Hide Charts' : 'See Charts';
+  }
+
+  /* verify if there is only one chart to display */
+  onlyOneChart() {
+    return [this.temperatureDataEmpty, this.densityDataEmpty, this.speedDataEmpty, this.powerDataEmpty].filter(value => !value).length === 1;
   }
 
   /* download CSV with filtered data sensors */
@@ -143,4 +322,5 @@ export class SensorsViewComponent implements OnInit{
   }
 
   protected readonly Math = Math;
+  protected readonly length = length;
 }
