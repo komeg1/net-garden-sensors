@@ -3,6 +3,8 @@ import {SensorService} from "../../service/sensor.service";
 import {Sensor} from "../../model/Sensor";
 import {SensorFilter} from "../../model/SensorFilter";
 import {ChartConfiguration, ChartData, ChartOptions} from "chart.js";
+import { DatePipe } from '@angular/common';
+
 
 @Component({
   selector: 'app-sensors-view',
@@ -21,12 +23,16 @@ export class SensorsViewComponent implements OnInit{
 
   showChart: boolean = false;
 
+  currentSortColumn: string = '';
+  currentSortOrder: 'ASCENDING' | 'DESCENDING' = 'ASCENDING';
+
+
   filter: SensorFilter = {
     sensorId: null,
     type: '',
     startDate: '',
     endDate: '',
-    sort: 'NONE',
+    sort: '',
   };
 
   chartDataTemperature: ChartData<'line'> = {
@@ -69,7 +75,7 @@ export class SensorsViewComponent implements OnInit{
   }
   powerDataEmpty: boolean = false;
 
-  constructor(private sensorService: SensorService) {}
+  constructor(private sensorService: SensorService, private datePipe: DatePipe) {}
 
   ngOnInit(): void {
     this.getData();
@@ -87,6 +93,21 @@ export class SensorsViewComponent implements OnInit{
         this.errorMessage = 'Data collection failed.';
       }
     });
+  }
+
+  /* get name depends on unit */
+  getName(unit: string){
+    let name = '';
+    if (unit == 'C') name = "Temperature";
+    else if (unit == 'g/m3') name = "Humidity";
+    else if (unit == 'W/m2') name = "Sun";
+    else if (unit == 'km/h') name = "Wind";
+    return name
+  }
+
+  formatDate(isoDate: string): string {
+    const formattedDate = this.datePipe.transform(isoDate, 'yyyy-MM-dd HH:mm:ss');
+    return formattedDate ? formattedDate : 'invalid date';
   }
 
   /* get last data from sensors */
@@ -125,11 +146,25 @@ export class SensorsViewComponent implements OnInit{
       type: '',
       startDate: '',
       endDate: '',
-      sort: 'NONE',
+      sort: '',
     };
     this.currentPage = 1;
     this.getData();
   }
+
+  /* sorting */
+  sortByColumn(column: string): void {
+    if (this.currentSortColumn === column) {
+      this.currentSortOrder = this.currentSortOrder === 'ASCENDING' ? 'DESCENDING' : 'ASCENDING';
+    } else {
+      this.currentSortColumn = column;
+      this.currentSortOrder = 'ASCENDING';
+    }
+
+    this.filter.sort = `${this.currentSortColumn}:${this.currentSortOrder}`;
+    this.applyFilters();
+  }
+
 
   /* set chart axis titles */
   setChartAxisTitles(chartConfig: ChartConfiguration<'line'>, xTitle: string, yTitle: string): void {
@@ -174,7 +209,7 @@ export class SensorsViewComponent implements OnInit{
                        index: number,
                        xTitle: string,
                        yTitle: string): void {
-    chartData.labels = Array.from(new Set(typeData.map(data => data.timestamp)));
+    chartData.labels = Array.from(new Set(typeData.map(data => this.formatDate(data.timestamp))));
     let color = 0;
 
     for (let j = index; j <= 15; j+=4) {

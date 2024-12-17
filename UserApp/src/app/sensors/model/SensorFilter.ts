@@ -3,5 +3,5 @@ export interface SensorFilter {
   type: string;
   startDate: string;
   endDate: string;
-  sort: 'NONE' | 'ASCENDING' | 'DESCENDING';
+  sort: string;
 }

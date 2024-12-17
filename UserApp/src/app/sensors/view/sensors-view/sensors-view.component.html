@@ -8,7 +8,7 @@
       <input type="number" id="sensorId" class="form-control" [(ngModel)]="filter.sensorId" placeholder="Enter Sensor ID" />
     </div>
     <div class="col-md-3">
-      <label for="type" class="form-label">Type</label>
+      <label for="type" class="form-label">Unit</label>
       <input type="text" id="type" class="form-control" [(ngModel)]="filter.type" placeholder="Enter Type" />
     </div>
     <div class="col-md-3">
@@ -20,16 +20,7 @@
       <input type="date" id="endDate" class="form-control" [(ngModel)]="filter.endDate" />
     </div>
   </div>
-  <div class="row mb-3">
-    <div class="col-md-3">
-      <label for="sort" class="form-label">Sort</label>
-      <select id="sort" class="form-control" [(ngModel)]="filter.sort">
-        <option value="NONE">None</option>
-        <option value="ASCENDING">Ascending</option>
-        <option value="DESCENDING">Descending</option>
-      </select>
-    </div>
-  </div>
+
   <div class="row mb-3">
     <div class="col-md-12 text-end">
       <button class="btn gradient-light me-2" (click)="applyFilters()">Apply Filters</button>
@@ -41,20 +32,49 @@
   <table *ngIf="paginatedData && paginatedData.length != 0"  class="table table-striped">
     <thead>
     <tr>
-      <th>ID</th>
-      <th>Value</th>
-      <th>Location</th>
-      <th>Unit</th>
-      <th>TimeStamp</th>
+      <th>
+        Name
+      </th>
+      <th>
+        ID
+        <button (click)="sortByColumn('SensorID')" class="btn btn-sm btn-light">
+          ↑↓
+        </button>
+      </th>
+      <th>
+        Value
+        <button (click)="sortByColumn('Value')" class="btn btn-sm btn-light">
+          ↑↓
+        </button>
+      </th>
+      <th>
+        Location
+        <button (click)="sortByColumn('Location')" class="btn btn-sm btn-light">
+          ↑↓
+        </button>
+      </th>
+      <th>
+        Unit
+        <button (click)="sortByColumn('Unit')" class="btn btn-sm btn-light">
+          ↑↓
+        </button>
+      </th>
+      <th>
+        TimeStamp
+        <button (click)="sortByColumn('Timestamp')" class="btn btn-sm btn-light">
+          ↑↓
+        </button>
+      </th>
     </tr>
     </thead>
     <tbody>
     <tr *ngFor="let sensor of paginatedData">
+      <td>{{ getName(sensor.unit) }}</td>
       <td>{{ sensor.sensorId }}</td>
       <td>{{ sensor.value }}</td>
       <td>{{ sensor.location}}</td>
       <td>{{ sensor.unit}}</td>
-      <td>{{ sensor.timestamp}}</td>
+      <td>{{ formatDate(sensor.timestamp)}}</td>
     </tr>
     </tbody>
   </table>
@@ -86,6 +106,7 @@
     No chart to display.
   </div>
 
+  <!-- charts  -->
   <div *ngIf="showChart && onlyOneChart()" class="container shadow rounded border p-2 item-space">
     <canvas *ngIf="!temperatureDataEmpty" baseChart
             [data]="chartConfigurationTemperature.data"

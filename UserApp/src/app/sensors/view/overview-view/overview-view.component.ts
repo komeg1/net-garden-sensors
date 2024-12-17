@@ -34,7 +34,7 @@ export class OverviewViewComponent implements OnInit, OnDestroy {
   }
 
   private startSSEConnection(): void {
-    this.eventSource = new EventSource('https://localhost:7258/sse');
+    this.eventSource = new EventSource('http://localhost:5230/sse');
 
     this.eventSource.onmessage = (event) => {
       const data = JSON.parse(event.data);
