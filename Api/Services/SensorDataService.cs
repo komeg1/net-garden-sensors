@@ -8,8 +8,8 @@ namespace Api;
 public class SensorDataService : ISensorDataService
 {
     private readonly IMongoCollection<SensorData> _sensorDataCollection;
-    private readonly WalletService _walletService;
-    private readonly BlockchainService _blockchainService;
+    private readonly IWalletService _walletService;
+    private readonly IBlockchainService _blockchainService;
     private const decimal REWARD = 0.0000001m;
     private event EventHandler<LogEventArgs>? OnLog;
     private static readonly BlockingCollection<SensorData> _dataQueue = new BlockingCollection<SensorData>();
@@ -17,8 +17,8 @@ public class SensorDataService : ISensorDataService
     
     public SensorDataService(
         IOptions<SensorsDatabaseSettings> sensorsDatabaseSettings,
-        BlockchainService blockchainService,
-        WalletService walletService)
+        IBlockchainService blockchainService,
+        IWalletService walletService)
     {
         OnLog += Logger.Instance.Log;
         OnLog?.Invoke(this,new LogEventArgs("connecting to db", LogLevel.Warning));
@@ -27,7 +27,6 @@ public class SensorDataService : ISensorDataService
 
         var mongoDatabase = mongoClient.GetDatabase(
             sensorsDatabaseSettings.Value.DatabaseName);
-
         OnLog?.Invoke(this,new LogEventArgs($"Collection: {sensorsDatabaseSettings.Value.SensorsCollectionName}",LogLevel.Debug));
         _sensorDataCollection = mongoDatabase.GetCollection<SensorData>(
             sensorsDatabaseSettings.Value.SensorsCollectionName);

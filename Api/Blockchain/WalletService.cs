@@ -3,7 +3,7 @@ using Nethereum.HdWallet;
 
 namespace Api
 {
-    public class WalletService
+    public class WalletService : IWalletService
     {
         private readonly string _mnemonic;
         private event EventHandler<LogEventArgs>? OnLog;

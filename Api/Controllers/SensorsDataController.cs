@@ -4,13 +4,17 @@ namespace Api.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-public class SensorsController : ControllerBase{
+public class SensorsController : ControllerBase {
     private readonly ILogger<SensorsController> _logger;
     private readonly ISensorDataService _sensorsService;
-    public SensorsController(ILogger<SensorsController> logger, ISensorDataService sensorsService)
+    private readonly IWalletService _walletService;
+    private readonly IBlockchainService _blockchainService;
+    public SensorsController(ILogger<SensorsController> logger, ISensorDataService sensorsService, IWalletService walletService, IBlockchainService blockchainService)
     {
         _logger = logger;
         _sensorsService = sensorsService;
+        _walletService = walletService;
+        _blockchainService = blockchainService;
     }
 
     [HttpGet(Name = "GetSensorsData")]
@@ -71,12 +75,12 @@ public class SensorsController : ControllerBase{
         return sortRules;
     }
 
-    [HttpGet("latest",Name="GetLatestData")]
+    [HttpGet("latest", Name = "GetLatestData")]
     public async Task<List<SensorData>> GetLatest()
     {
         var sensorData = await _sensorsService.GetNewestDataAsync();
         return sensorData;
-        
+
     }
 
     [HttpGet("export")]
@@ -93,8 +97,8 @@ public class SensorsController : ControllerBase{
 
         if (sensorId == -1 && type == "" && startDate == default && endDate == default && (sortRules?.Count == 0))
         {
-            return File(_sensorsService.ExportToFile(exportFormat).Result 
-                        ,"application/octet-stream"
+            return File(_sensorsService.ExportToFile(exportFormat).Result
+                        , "application/octet-stream"
                         , $"{DateTime.UtcNow}.{(exportFormat == ExportFormat.CSV ? "csv" : "json")}");
         }
 
@@ -108,7 +112,16 @@ public class SensorsController : ControllerBase{
                             SortRules = sortRules
                         }
                 )).Result
-                    ,"application/octet-stream"
+                    , "application/octet-stream"
                     , $"{DateTime.UtcNow}.{(exportFormat == ExportFormat.CSV ? "csv" : "json")}");
     }
+
+    [HttpGet("{id}")]
+    async public Task<IActionResult> ExportData(int id)
+    {
+        var walletAddress = _walletService.GetSensorWalletAddress(id);
+        var balance = await _blockchainService.GetBalanceAsync(walletAddress);
+        return Ok((float)balance);
+    }
+
 }
