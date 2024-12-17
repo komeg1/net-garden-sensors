@@ -1,0 +1,12 @@
+@keyframes text-color-change {
+  0% {
+    color: rgba(0, 0, 0, 0);
+  }
+  100% {
+    color: rgba(0, 0, 0, 1);
+  }
+}
+
+.animate-text {
+  animation: text-color-change 1s ease-in-out;
+}

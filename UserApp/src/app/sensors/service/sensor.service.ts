@@ -8,7 +8,6 @@ import {SensorFilter} from "../model/SensorFilter";
   providedIn: 'root'
 })
 export class SensorService {
-
   constructor(private http: HttpClient) { }
 
   getFilteredData(filter: SensorFilter): Observable<Sensor[]> {
