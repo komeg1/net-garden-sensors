@@ -289,11 +289,12 @@ namespace Api
 				{
 					sensorWalletAddress = Web3.ToChecksumAddress(sensorWalletAddress);
 				}
-				HexBigInteger gas = new HexBigInteger(22000);
-				// Send the transaction
-				var transactionHash = await transferFunction.SendTransactionAsync(
+
+                var gasEstimate = new HexBigInteger(60000);
+                // Send the transaction
+                var transactionHash = await transferFunction.SendTransactionAsync(
 					from: web3.TransactionManager.Account.Address,
-					gas: gas,
+					gas: gasEstimate,
 					value: null,
 					sensorWalletAddress,
 					amountInWei
