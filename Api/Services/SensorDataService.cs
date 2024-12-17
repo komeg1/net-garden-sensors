@@ -8,13 +8,18 @@ namespace Api;
 public class SensorDataService : ISensorDataService
 {
     private readonly IMongoCollection<SensorData> _sensorDataCollection;
+    private readonly IWalletService _walletService;
+    private readonly IBlockchainService _blockchainService;
+    private const decimal REWARD = 0.0000001m;
     private event EventHandler<LogEventArgs>? OnLog;
     private static readonly BlockingCollection<SensorData> _dataQueue = new BlockingCollection<SensorData>();
     public BlockingCollection<SensorData> DataQueue => _dataQueue;
-
-    public SensorDataService(IOptions<SensorsDatabaseSettings> sensorsDatabaseSettings)
-    {
     
+    public SensorDataService(
+        IOptions<SensorsDatabaseSettings> sensorsDatabaseSettings,
+        IBlockchainService blockchainService,
+        IWalletService walletService)
+    {
         OnLog += Logger.Instance.Log;
         OnLog?.Invoke(this,new LogEventArgs("connecting to db", LogLevel.Warning));
         var mongoClient = new MongoClient(
@@ -22,11 +27,12 @@ public class SensorDataService : ISensorDataService
 
         var mongoDatabase = mongoClient.GetDatabase(
             sensorsDatabaseSettings.Value.DatabaseName);
-
         OnLog?.Invoke(this,new LogEventArgs($"Collection: {sensorsDatabaseSettings.Value.SensorsCollectionName}",LogLevel.Debug));
         _sensorDataCollection = mongoDatabase.GetCollection<SensorData>(
             sensorsDatabaseSettings.Value.SensorsCollectionName);
         OnLog?.Invoke(this,new LogEventArgs($"connected to {sensorsDatabaseSettings.Value.DatabaseName} db", LogLevel.Success));
+        _blockchainService = blockchainService;
+        _walletService = walletService;
     }
 
     public async Task<List<SensorData>> GetAsync() =>
@@ -46,7 +52,12 @@ public class SensorDataService : ISensorDataService
             _sensorDataCollection.InsertOne(newSensorData);
             OnLog?.Invoke(this,new LogEventArgs("Successfully added to db",LogLevel.Debug));
             _dataQueue.Add(newSensorData);
-
+            var wallet  = _walletService.GetSensorWalletAddress(newSensorData.SensorId);
+            if (string.IsNullOrEmpty(wallet)) {
+                OnLog?.Invoke(this, new LogEventArgs("Invalid wallet address", LogLevel.Error));
+                return;
+            }
+            _blockchainService.RewardSensorAsync(wallet, REWARD);
         }
         catch (Exception e)
         {

@@ -1,6 +1,6 @@
-
 namespace Api;
 using System.Text.Json;
+using Api.Entities.Config;
 using Microsoft.Net.Http.Headers;
 
 public class Program
@@ -25,20 +25,27 @@ public class Program
         builder.Services.AddSwaggerGen();
         builder.Services.Configure<SensorsDatabaseSettings>(
             builder.Configuration.GetSection("Database"));
+        builder.Services.Configure<BlockchainSettings>(
+            builder.Configuration.GetSection("Blockchain"));
             
         builder.Services.Configure<MqttSettings>(builder.Configuration.GetSection("MqttSettings"));
 
         builder.Services.AddSingleton<ISensorDataService,SensorDataService>();
         builder.Services.AddSingleton<MqttService>();
 
+        builder.Services.AddSingleton<IBlockchainService,BlockchainService>();
+        builder.Services.AddSingleton<IWalletService,WalletService>(provider =>
+        {
+            var mnemonic = "circle vital cake know boat crumble entry rubber sleep beach anchor mercy";
+            return new WalletService(mnemonic);
+        });
+
         var app = builder.Build();
         app.UseCors("AllowSpecificOrigin");
         // Configure the HTTP request pipeline.
-        if (app.Environment.IsDevelopment())
-        {
-            app.UseSwagger();
-            app.UseSwaggerUI();
-        }
+        app.UseSwagger();
+        app.UseSwaggerUI();
+
 
         app.UseHttpsRedirection();
 

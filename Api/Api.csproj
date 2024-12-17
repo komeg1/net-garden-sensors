@@ -7,9 +7,20 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Remove="Utilities\appsettings.Production.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="appsettings.Production.json" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="7.0.20" />
     <PackageReference Include="MongoDB.Driver" Version="2.29.0" />
     <PackageReference Include="MQTTnet" Version="4.3.7.1207" />
+    <PackageReference Include="Nethereum.Contracts" Version="4.26.0" />
+    <PackageReference Include="Nethereum.HdWallet" Version="4.26.0" />
+    <PackageReference Include="Nethereum.Web3" Version="4.26.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
   </ItemGroup>

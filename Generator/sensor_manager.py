@@ -53,7 +53,7 @@ class SensorManager:
     def _sensor_thread(self, sensorid):
         while self.thread_running:
             self.generate(sensorid)
-            delay = random.uniform(1, 5)  
+            delay = random.uniform(30, 45)  
             time.sleep(delay)  
 
     def start_sensor_threads(self):
