@@ -1,3 +1,4 @@
+using Api.Entities.Enums;
 using Microsoft.AspNetCore.Mvc;
 namespace Api.Controllers;
 
@@ -13,14 +14,17 @@ public class SensorsController : ControllerBase{
     }
 
     [HttpGet(Name = "GetSensorsData")]
-    public async Task<List<SensorData>> Get([FromQuery] int sensorId=-1,
-                                            [FromQuery] string type="",
-                                            [FromQuery] DateTime startDate=default,
-                                            [FromQuery] DateTime endDate=default,
-                                            [FromQuery] SortType sort = SortType.NONE)
+    public async Task<List<SensorData>> Get([FromQuery] int sensorId = -1,
+                                            [FromQuery] string type = "",
+                                            [FromQuery] DateTime startDate = default,
+                                            [FromQuery] DateTime endDate = default,
+                                            [FromQuery] string? sortFields = null)
     {
         List<SensorData>? sensorData;
-        if(sensorId != -1 || type != "" || startDate != default || endDate != default || sort != SortType.NONE)
+
+        var sortRules = ParseSortRules(sortFields);
+
+        if (sensorId != -1 || type != "" || startDate != default || endDate != default || (sortRules?.Count > 0))
         {
             sensorData = await _sensorsService.GetAsync(
                 DbPipelineBuilder.BuildFromRequest(new SensorDataFilterOptions
@@ -29,16 +33,42 @@ public class SensorsController : ControllerBase{
                     Type = type,
                     StartDate = startDate,
                     EndDate = endDate,
-                    Sort = sort
+                    SortRules = sortRules
                 })
             );
         }
-        else{
+        else
+        {
             sensorData = await _sensorsService.GetAsync();
         }
 
-    return sensorData;
-        
+        return sensorData;
+    }
+
+    // Helper method to parse sorting rules from query parameters
+    private List<(SortField Field, SortType Order)> ParseSortRules(string? sortFields)
+    {
+        var sortRules = new List<(SortField, SortType)>();
+
+        if (!string.IsNullOrWhiteSpace(sortFields))
+        {
+            var fields = sortFields.Split(',');
+
+            foreach (var field in fields)
+            {
+                var parts = field.Split(':');
+                if (parts.Length == 2)
+                {
+                    if (Enum.TryParse<SortField>(parts[0], true, out var sortField) &&
+                        Enum.TryParse<SortType>(parts[1], true, out var sortOrder))
+                    {
+                        sortRules.Add((sortField, sortOrder));
+                    }
+                }
+            }
+        }
+
+        return sortRules;
     }
 
     [HttpGet("latest",Name="GetLatestData")]
@@ -54,12 +84,14 @@ public class SensorsController : ControllerBase{
                                             [FromQuery] string type="",
                                             [FromQuery] DateTime startDate=default,
                                             [FromQuery] DateTime endDate=default,
-                                            [FromQuery] SortType sort = SortType.NONE)
+                                            [FromQuery] string? sortFields = null)
     {
         if (exportFormat == null)
             return BadRequest("Invalid File type");
 
-        if(sensorId == -1 && type == "" && startDate == default && endDate == default && sort ==SortType.NONE)
+        var sortRules = ParseSortRules(sortFields);
+
+        if (sensorId == -1 && type == "" && startDate == default && endDate == default && (sortRules?.Count == 0))
         {
             return File(_sensorsService.ExportToFile(exportFormat).Result 
                         ,"application/octet-stream"
@@ -73,7 +105,7 @@ public class SensorsController : ControllerBase{
                             Type = type,
                             StartDate = startDate,
                             EndDate = endDate,
-                            Sort = sort
+                            SortRules = sortRules
                         }
                 )).Result
                     ,"application/octet-stream"

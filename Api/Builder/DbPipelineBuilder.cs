@@ -1,3 +1,4 @@
+using Api.Entities.Enums;
 using Microsoft.AspNetCore.Mvc.Filters;
 using MongoDB.Driver;
 
@@ -15,12 +16,45 @@ public static class DbPipelineBuilder{
         if (options.StartDate != default) {pipeline = pipeline.Match(filter.Gte(e=> e.Timestamp, options.StartDate));}
         if (options.EndDate != default) {pipeline = pipeline.Match(filter.Lte(e=> e.Timestamp, options.EndDate));}
 
-        if(options.Sort == SortType.ASCENDING)
-                pipeline= pipeline.Sort(sort.Ascending(e=>e.Timestamp));
-         if(options.Sort == SortType.DESCENDING)
-                 pipeline = pipeline.Sort(sort.Descending(e=>e.Timestamp));
-        
+        if (options.SortRules != null && options.SortRules.Count > 0)
+        {
+            var sortDefinitions = new List<SortDefinition<SensorData>>();
+
+            foreach (var rule in options.SortRules)
+            {
+                switch (rule.Field)
+                {
+                    case SortField.SensorId:
+                        sortDefinitions.Add(rule.Order == SortType.ASCENDING
+                            ? sort.Ascending(e => e.SensorId)
+                            : sort.Descending(e => e.SensorId));
+                        break;
+
+                    case SortField.Unit:
+                        sortDefinitions.Add(rule.Order == SortType.ASCENDING
+                            ? sort.Ascending(e => e.Unit)
+                            : sort.Descending(e => e.Unit));
+                        break;
+
+                    case SortField.Timestamp:
+                        sortDefinitions.Add(rule.Order == SortType.ASCENDING
+                            ? sort.Ascending(e => e.Timestamp)
+                            : sort.Descending(e => e.Timestamp));
+                        break;
+                    case SortField.Value:
+                        sortDefinitions.Add(rule.Order == SortType.ASCENDING
+                            ? sort.Ascending(e => e.Value)
+                            : sort.Descending(e => e.Value));
+                        break;
+                }
+            }
+
+            // Combine multiple sort definitions
+            pipeline = pipeline.Sort(sort.Combine(sortDefinitions));
+        }
+
         return pipeline;
+
 
     }
 

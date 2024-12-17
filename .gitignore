@@ -1,5 +1,6 @@
 Database/
 **/appsettings.json
+**/appsettings.Production.json
 Api/bin/
 **/bin/
 **/bin
