@@ -26,6 +26,10 @@ export class SensorService {
     return this.http.get<Sensor[]>('Sensors/latest');
   }
 
+  getWallet(): Observable<number[]> {
+    return this.http.get<number[]>('Sensors/wallet');
+  }
+
   exportData(filter: SensorFilter, format: 'CSV' | 'JSON'): Observable<Blob> {
     let url = `Sensors/export?exportFormat=${format}&`;
 
