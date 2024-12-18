@@ -322,31 +322,45 @@ namespace Api
 	
 		public async Task<decimal> GetBalanceAsync(string sensorWalletAddress)
 		{
-			try
+            int retries = 5;
+            int delayInMs = 250;
+			for (int i = 0; i < retries; i++)
 			{
-				OnLog?.Invoke(this, new LogEventArgs($"Getting balance for {sensorWalletAddress}", LogLevel.Debug));
-
-				var contract = web3.Eth.GetContract(contractABI, contractAddress);
-				var balanceFunction = contract.GetFunction("balanceOf");
-
-				if (!Web3.IsChecksumAddress(sensorWalletAddress))
+				try
 				{
-					sensorWalletAddress = Web3.ToChecksumAddress(sensorWalletAddress);
+					OnLog?.Invoke(this, new LogEventArgs($"Getting balance for {sensorWalletAddress}", LogLevel.Debug));
+
+					var contract = web3.Eth.GetContract(contractABI, contractAddress);
+					var balanceFunction = contract.GetFunction("balanceOf");
+
+					if (!Web3.IsChecksumAddress(sensorWalletAddress))
+					{
+						sensorWalletAddress = Web3.ToChecksumAddress(sensorWalletAddress);
+					}
+
+					var balance = await balanceFunction.CallAsync<BigInteger>(sensorWalletAddress);
+					var balanceInEth = Web3.Convert.FromWei(balance, 18);
+
+					OnLog?.Invoke(this, new LogEventArgs($"Balance: {balanceInEth} tokens", LogLevel.Debug));
+
+					return balanceInEth;
 				}
+				catch (Exception ex)
+				{
+					OnLog?.Invoke(this, new LogEventArgs($"Error while getting balance: {ex.Message}. Retrying {{{i}/{retries}}}", LogLevel.Error));
 
-				var balance = await balanceFunction.CallAsync<BigInteger>(sensorWalletAddress);
-				var balanceInEth = Web3.Convert.FromWei(balance, 18);
+					if (i == retries)
+					{
+                        OnLog?.Invoke(this, new LogEventArgs($"Error while getting balance: {ex.Message}. Max retry attempts reached.", LogLevel.Error));
+                        return -1;
+                    }
 
-				OnLog?.Invoke(this, new LogEventArgs($"Balance: {balanceInEth} tokens", LogLevel.Debug));
-
-				return balanceInEth;
+                    await Task.Delay(delayInMs);
+                    
+				}
 			}
-			catch (Exception ex)
-			{
-				OnLog?.Invoke(this, new LogEventArgs($"Error while getting balance: {ex.Message}", LogLevel.Error));
-				return 0;
-			}
-		}
+            return -1;
+        }
 
         public async Task<Dictionary<int, decimal>> GetBalanceAsync()
 		{
@@ -354,7 +368,8 @@ namespace Api
 			for(int i=0;i<IWalletService.WALLETS_CNT;i++)
 			{ 
 				var address = _walletService.GetSensorWalletAddress(i);
-				balances.Add(i, await GetBalanceAsync(address));
+
+                balances.Add(i, await GetBalanceAsync(address));
 			}
 			return balances;
 		}
