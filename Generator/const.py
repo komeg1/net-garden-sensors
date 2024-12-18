@@ -1,6 +1,6 @@
 from enum import Enum
 #Mqtt broker credentials
-MQTT_BROKER_ADDR = 'broker.hivemq.com'
+MQTT_BROKER_ADDR = 'mosquitto-container'
 MQTT_USER = 'test@test.com'
 MQTT_PSWD = 'test'
 MQTT_PORT = 1883
