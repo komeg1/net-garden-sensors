@@ -10,7 +10,7 @@ export class OverviewViewComponent implements OnInit, OnDestroy {
   sensorData: { [key: number]: SensorRealTime } = {};
   sensorIds: number[] = Array.from({ length: 16 }, (_, id) => id);
   eventSource?: EventSource;
-  tableTitles: string[] = ['Temperature', 'Density', 'Speed', 'Power'];
+  tableTitles: string[] = ['Temperature', 'Humidity', 'Windy', 'Sun'];
 
   ngOnInit(): void {
     this.initSensorData();

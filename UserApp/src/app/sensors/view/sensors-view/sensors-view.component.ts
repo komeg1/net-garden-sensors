@@ -26,7 +26,7 @@ export class SensorsViewComponent implements OnInit{
   currentSortColumn: string = '';
   currentSortOrder: 'ASCENDING' | 'DESCENDING' = 'ASCENDING';
 
-
+  sensorIds: number[] = Array.from({ length: 16 }, (_, i) => i);
   filter: SensorFilter = {
     sensorId: null,
     type: '',
@@ -321,7 +321,6 @@ export class SensorsViewComponent implements OnInit{
   downloadJSON(): void {
     this.sensorService.exportData(this.filter, 'JSON').subscribe({
       next: (response) =>{
-        console.log("downloadFile called");
         this.downloadFile(response, 'sensors_data.json');},
       error: (err) => {
         this.errorMessage = 'Failed to download JSON file.';
