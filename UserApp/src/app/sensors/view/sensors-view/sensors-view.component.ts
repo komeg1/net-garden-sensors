@@ -45,35 +45,35 @@ export class SensorsViewComponent implements OnInit{
   }
   temperatureDataEmpty: boolean = false;
 
-  chartDataDensity: ChartData<'line'> = {
+  chartDataHumidity: ChartData<'line'> = {
     labels: [],
     datasets: []
   };
-  chartConfigurationDensity: ChartConfiguration<'line'> = {
+  chartConfigurationHumidity: ChartConfiguration<'line'> = {
     type: 'line',
-    data: this.chartDataDensity
+    data: this.chartDataHumidity
   }
-  densityDataEmpty: boolean = false;
+  humidityDataEmpty: boolean = false;
 
-  chartDataSpeed: ChartData<'line'> = {
+  chartDataWind: ChartData<'line'> = {
     labels: [],
     datasets: []
   };
-  chartConfigurationSpeed: ChartConfiguration<'line'> = {
+  chartConfigurationWind: ChartConfiguration<'line'> = {
     type: 'line',
-    data: this.chartDataSpeed
+    data: this.chartDataWind
   }
-  speedDataEmpty: boolean = false;
+  windDataEmpty: boolean = false;
 
-  chartDataPower: ChartData<'line'> = {
+  chartDataSun: ChartData<'line'> = {
     labels: [],
     datasets: []
   };
-  chartConfigurationPower: ChartConfiguration<'line'> = {
+  chartConfigurationSun: ChartConfiguration<'line'> = {
     type: 'line',
-    data: this.chartDataPower
+    data: this.chartDataSun
   }
-  powerDataEmpty: boolean = false;
+  sunDataEmpty: boolean = false;
 
   constructor(private sensorService: SensorService, private datePipe: DatePipe) {}
 
@@ -259,44 +259,44 @@ export class SensorsViewComponent implements OnInit{
             this.temperatureDataEmpty = true;
           }
           else {
-            this.setChartPresentation(this.chartDataTemperature, this.chartConfigurationTemperature, typeData, sensorType, "Timestamp", "Temperature");
+            this.setChartPresentation(this.chartDataTemperature, this.chartConfigurationTemperature, typeData, sensorType, "Timestamp", "Temperature [C]");
           }
         }
         else if (sensorType == 1) {
           if (typeData.length == 0) {
-            this.densityDataEmpty = true;
+            this.humidityDataEmpty = true;
           }
           else {
-            this.setChartPresentation(this.chartDataDensity, this.chartConfigurationDensity, typeData, sensorType, "Timestamp", "Humidity");
+            this.setChartPresentation(this.chartDataHumidity, this.chartConfigurationHumidity, typeData, sensorType, "Timestamp", "Humidity [g/m3]");
           }
         }
         else if (sensorType == 2) {
           if (typeData.length == 0) {
-            this.speedDataEmpty = true;
+            this.windDataEmpty = true;
           }
           else {
-            this.setChartPresentation(this.chartDataSpeed, this.chartConfigurationSpeed, typeData, sensorType, "Timestamp", "Wind");
+            this.setChartPresentation(this.chartDataWind, this.chartConfigurationWind, typeData, sensorType, "Timestamp", "Wind [km/h]");
           }
         }
         else if (sensorType == 3) {
           if (typeData.length == 0) {
-            this.powerDataEmpty = true;
+            this.sunDataEmpty = true;
           }
           else {
-            this.setChartPresentation(this.chartDataPower, this.chartConfigurationPower, typeData, sensorType, "Timestamp", "Sun");
+            this.setChartPresentation(this.chartDataSun, this.chartConfigurationSun, typeData, sensorType, "Timestamp", "Sun [W/m2]");
           }
         }
       }
     }
     else {
       this.clearChartPresentation(this.chartDataTemperature, this.chartConfigurationTemperature);
-      this.clearChartPresentation(this.chartDataDensity, this.chartConfigurationDensity);
-      this.clearChartPresentation(this.chartDataSpeed, this.chartConfigurationSpeed);
-      this.clearChartPresentation(this.chartDataPower, this.chartConfigurationPower);
+      this.clearChartPresentation(this.chartDataHumidity, this.chartConfigurationHumidity);
+      this.clearChartPresentation(this.chartDataWind, this.chartConfigurationWind);
+      this.clearChartPresentation(this.chartDataSun, this.chartConfigurationSun);
       this.temperatureDataEmpty = false;
-      this.densityDataEmpty = false;
-      this.speedDataEmpty = false;
-      this.powerDataEmpty = false;
+      this.humidityDataEmpty = false;
+      this.windDataEmpty = false;
+      this.sunDataEmpty = false;
     }
   }
 
@@ -307,7 +307,7 @@ export class SensorsViewComponent implements OnInit{
 
   /* verify if there is only one chart to display */
   onlyOneChart() {
-    return [this.temperatureDataEmpty, this.densityDataEmpty, this.speedDataEmpty, this.powerDataEmpty].filter(value => !value).length === 1;
+    return [this.temperatureDataEmpty, this.humidityDataEmpty, this.windDataEmpty, this.sunDataEmpty].filter(value => !value).length === 1;
   }
 
   /* download CSV with filtered data sensors */
