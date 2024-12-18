@@ -1,16 +1,20 @@
 version: '3.8'
+
 services:
   backend:
+    container_name: backend-container
     build:
       context: ./Api
       dockerfile: Dockerfile
     ports:
       - "5000:5000"
+      - "5500:5500"
     depends_on:
       - mongodb
       - mosquitto
 
   python-generator:
+    container_name: generator-container
     build:
       context: ./Generator
       dockerfile: Dockerfile
@@ -23,6 +27,8 @@ services:
     ports:
       - "1883:1883"
       - "9001:9001"
+    volumes:
+      - ./Configuration/mosquitto.conf:/mosquitto/config/mosquitto.conf
 
   mongodb:
     container_name: mongo-container
@@ -32,11 +38,11 @@ services:
     volumes:
       - ./data:/data/db
 
-  frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    ports:
-      - "80:80"
-    depends_on:
-      - backend
+  # frontend:
+  #   build:
+  #     context: ./frontend
+  #     dockerfile: Dockerfile
+  #   ports:
+  #     - "80:80"
+  #   depends_on:
+  #     - backend
