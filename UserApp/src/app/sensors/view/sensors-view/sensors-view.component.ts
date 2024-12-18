@@ -178,7 +178,7 @@ export class SensorsViewComponent implements OnInit{
             text: xTitle,
           },
           ticks: {
-            autoSkip: false,
+            autoSkip: true  ,
           }
         },
         y: {
@@ -217,7 +217,7 @@ export class SensorsViewComponent implements OnInit{
 
       if (specificSensorData.length != 0) {
         const datasetData = chartData.labels.map(timestamp => {
-          const match = specificSensorData.find(data => data.timestamp === timestamp);
+          const match = specificSensorData.find(data => this.formatDate(data.timestamp)  === timestamp);
           return match ? match.value : null;
         });
 
@@ -248,13 +248,15 @@ export class SensorsViewComponent implements OnInit{
     this.showChart = !this.showChart;
     if (this.showChart) {
       for (let sensorType = 0; sensorType < 4; sensorType++) {
-        const typeData = this.sensorData.filter(data => data.sensorId % 4 == sensorType);
+        const typeData = this.sensorData
+            .filter(data => data.sensorId % 4 == sensorType)
+            .sort((data1, data2) => new Date(data1.timestamp).getTime() - new Date(data2.timestamp).getTime());
         if (sensorType == 0) {
           if (typeData.length == 0) {
             this.temperatureDataEmpty = true;
           }
           else {
-            this.setChartPresentation(this.chartDataTemperature, this.chartConfigurationTemperature, typeData, sensorType, "Date", "Temperature");
+            this.setChartPresentation(this.chartDataTemperature, this.chartConfigurationTemperature, typeData, sensorType, "Timestamp", "Temperature");
           }
         }
         else if (sensorType == 1) {
@@ -262,7 +264,7 @@ export class SensorsViewComponent implements OnInit{
             this.densityDataEmpty = true;
           }
           else {
-            this.setChartPresentation(this.chartDataDensity, this.chartConfigurationDensity, typeData, sensorType, "Date", "Density");
+            this.setChartPresentation(this.chartDataDensity, this.chartConfigurationDensity, typeData, sensorType, "Timestamp", "Humidity");
           }
         }
         else if (sensorType == 2) {
@@ -270,7 +272,7 @@ export class SensorsViewComponent implements OnInit{
             this.speedDataEmpty = true;
           }
           else {
-            this.setChartPresentation(this.chartDataSpeed, this.chartConfigurationSpeed, typeData, sensorType, "Date", "Speed");
+            this.setChartPresentation(this.chartDataSpeed, this.chartConfigurationSpeed, typeData, sensorType, "Timestamp", "Wind");
           }
         }
         else if (sensorType == 3) {
@@ -278,7 +280,7 @@ export class SensorsViewComponent implements OnInit{
             this.powerDataEmpty = true;
           }
           else {
-            this.setChartPresentation(this.chartDataPower, this.chartConfigurationPower, typeData, sensorType, "Date", "Power");
+            this.setChartPresentation(this.chartDataPower, this.chartConfigurationPower, typeData, sensorType, "Timestamp", "Sun");
           }
         }
       }
