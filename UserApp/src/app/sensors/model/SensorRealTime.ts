@@ -1,5 +1,5 @@
 export interface SensorRealTime {
-  latest: number;
+  latest: number | string;
   unit: string;
   values: number[];
 }

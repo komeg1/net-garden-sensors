@@ -150,6 +150,9 @@ export class SensorsViewComponent implements OnInit{
     };
     this.currentPage = 1;
     this.getData();
+    if (this.showChart) {
+      this.seeCharts();
+    }
   }
 
   /* sorting */
