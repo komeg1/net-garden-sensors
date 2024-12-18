@@ -116,12 +116,20 @@ public class SensorsController : ControllerBase {
                     , $"{DateTime.UtcNow}.{(exportFormat == ExportFormat.CSV ? "csv" : "json")}");
     }
 
-    [HttpGet("{id}")]
-    async public Task<IActionResult> ExportData(int id)
+    [HttpGet("wallet/{id}")]
+    async public Task<IActionResult> GetSensorWalletBalanceAsync(int id)
     {
-        var walletAddress = _walletService.GetSensorWalletAddress(id);
-        var balance = await _blockchainService.GetBalanceAsync(walletAddress);
+        var balance = await _blockchainService.GetBalanceAsync(
+                                                _walletService.GetSensorWalletAddress(id));
         return Ok((float)balance);
     }
+
+    [HttpGet("wallet")]
+    async public Task<IActionResult> GetSensorsWalletBalanceAsync()
+    {
+        var balances = await _blockchainService.GetBalanceAsync();
+        return Ok(balances);
+    }
+
 
 }

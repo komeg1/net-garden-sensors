@@ -21,5 +21,4 @@ public class SensorData{
 
     public DateTime Timestamp { get; set; }
 
-    public decimal balance { get; set; }
 }

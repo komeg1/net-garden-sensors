@@ -8,7 +8,7 @@ namespace Api
 {
     public class BlockchainService : IBlockchainService
     {
-
+		private readonly IWalletService _walletService;
 		private string contractAddress;
 		private string privateKey;
 		private string infuraUrl;
@@ -257,8 +257,9 @@ namespace Api
 			}
 		]";
 
-        public BlockchainService(IOptions<BlockchainSettings> blockchainSettings)
+        public BlockchainService(IOptions<BlockchainSettings> blockchainSettings, IWalletService walletService)
         {
+			_walletService = walletService;
 			privateKey = blockchainSettings.Value.PrivateKey;
 			contractAddress =blockchainSettings.Value.ContractAddress;
             infuraUrl = blockchainSettings.Value.InfuraUrl;
@@ -266,6 +267,7 @@ namespace Api
             var account = new Account(privateKey);
             web3 = new Web3(account, infuraUrl);
             OnLog?.Invoke(this, new LogEventArgs("Blockchain service started", LogLevel.Success));
+
 
         }
 
@@ -344,6 +346,17 @@ namespace Api
 				OnLog?.Invoke(this, new LogEventArgs($"Error while getting balance: {ex.Message}", LogLevel.Error));
 				return 0;
 			}
+		}
+
+        public async Task<Dictionary<int, decimal>> GetBalanceAsync()
+		{
+			Dictionary<int,decimal> balances = new Dictionary<int, decimal>();
+			for(int i=0;i<IWalletService.WALLETS_CNT;i++)
+			{ 
+				var address = _walletService.GetSensorWalletAddress(i);
+				balances.Add(i, await GetBalanceAsync(address));
+			}
+			return balances;
 		}
     }
 }

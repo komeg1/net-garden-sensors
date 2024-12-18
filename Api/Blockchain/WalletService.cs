@@ -34,5 +34,7 @@ namespace Api
             var account = GenerateSensorWallet(sensorId);
             return account.PrivateKey;
         }
+
+        
     }
 }

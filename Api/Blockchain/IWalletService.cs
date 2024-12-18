@@ -6,6 +6,7 @@ namespace Api;
 
     public interface IWalletService
     {
+        public static readonly int WALLETS_CNT = 16;
         Account GenerateSensorWallet(int sensorId);
         string GetSensorWalletAddress(int sensorId);
         string GetSensorWalletPrivateKey(int sensorId);
