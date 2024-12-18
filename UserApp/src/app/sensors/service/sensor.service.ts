@@ -11,7 +11,7 @@ export class SensorService {
   constructor(private http: HttpClient) { }
 
   getFilteredData(filter: SensorFilter): Observable<Sensor[]> {
-    let url = 'http://localhost:5230/Sensors?';
+    let url = 'Sensors?';
 
     if (filter.sensorId !== null) url += `sensorId=${filter.sensorId}&`;
     if (filter.type) url += `type=${filter.type}&`;
@@ -23,11 +23,11 @@ export class SensorService {
   }
 
   getLastData(): Observable<Sensor[]> {
-    return this.http.get<Sensor[]>('http://localhost:5230/Sensors/latest');
+    return this.http.get<Sensor[]>('Sensors/latest');
   }
 
   exportData(filter: SensorFilter, format: 'CSV' | 'JSON'): Observable<Blob> {
-    let url = `http://localhost:5230/Sensors/export?exportFormat=${format}&`;
+    let url = `Sensors/export?exportFormat=${format}&`;
 
     if (filter.sensorId !== null) url += `sensorId=${filter.sensorId}&`;
     if (filter.type) url += `type=${filter.type}&`;
