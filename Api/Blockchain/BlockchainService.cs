@@ -1,5 +1,6 @@
 using Api.Entities.Config;
 using Microsoft.Extensions.Options;
+using Nethereum.Hex.HexTypes;
 using Nethereum.Web3;
 using Nethereum.Web3.Accounts;
 using System.Numerics;
@@ -288,6 +289,9 @@ namespace Api
 				);
 
                 var gasEstimate = await web3.Eth.Transactions.EstimateGas.SendRequestAsync(callInput);
+				var gasEstimateBigInt = gasEstimate.Value;
+				gasEstimate = new HexBigInteger(gasEstimateBigInt + (gasEstimateBigInt / 10));
+
                 var transactionHash = await transferFunction.SendTransactionAsync(
 					web3.TransactionManager.Account.Address,
 					gasEstimate,
