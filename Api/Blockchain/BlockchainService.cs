@@ -281,27 +281,8 @@ namespace Api
 				var amountInWei = Web3.Convert.ToWei(tokenAmount, 18);
 				var contract = web3.Eth.GetContract(contractABI, contractAddress);
                 var transferFunction = contract.GetFunction("transfer");
-                var callInput = transferFunction.CreateCallInput(
-				   from: web3.TransactionManager.Account.Address, 
-				   gas: null,                                   
-				   value: null,                                  
-				   functionInput: new object[] { sensorWalletAddress, amountInWei }
-				);
-
-                var gasEstimate = await web3.Eth.Transactions.EstimateGas.SendRequestAsync(callInput);
-				var gasEstimateBigInt = gasEstimate.Value;
-				gasEstimate = new HexBigInteger(gasEstimateBigInt + (gasEstimateBigInt / 10));
-
-                var transactionHash = await transferFunction.SendTransactionAsync(
-					web3.TransactionManager.Account.Address,
-					gasEstimate,
-					null,
-					null,
-					sensorWalletAddress,
-					amountInWei
-				);
-
-				OnLog?.Invoke(this, new LogEventArgs($"Transaction successful: {transactionHash}", LogLevel.Success));
+                var gasEstimate = new HexBigInteger(60000);
+				var transactionHash = await transferFunction.SendTransactionAsync(web3.TransactionManager.Account.Address, gasEstimate, null, null, sensorWalletAddress, amountInWei);
 			}
             catch (Exception ex)
 			{
@@ -321,15 +302,8 @@ namespace Api
 
 					var contract = web3.Eth.GetContract(contractABI, contractAddress);
 					var balanceFunction = contract.GetFunction("balanceOf");
-
-					if (!Web3.IsChecksumAddress(sensorWalletAddress))
-					{
-						sensorWalletAddress = Web3.ToChecksumAddress(sensorWalletAddress);
-					}
-
 					var balance = await balanceFunction.CallAsync<BigInteger>(sensorWalletAddress);
 					var balanceInEth = Web3.Convert.FromWei(balance, 18);
-
 					OnLog?.Invoke(this, new LogEventArgs($"Balance: {balanceInEth} tokens", LogLevel.Debug));
 
 					return balanceInEth;
@@ -345,7 +319,6 @@ namespace Api
                     }
 
                     await Task.Delay(delayInMs);
-                    
 				}
 			}
             return -1;
