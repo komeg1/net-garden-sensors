@@ -277,37 +277,22 @@ namespace Api
 			{
 				OnLog?.Invoke(this, new LogEventArgs($"Sending {tokenAmount} tokens to {sensorWalletAddress}", LogLevel.Debug));
 
-				// Convert tokenAmount to Wei
 				var amountInWei = Web3.Convert.ToWei(tokenAmount, 18);
-
-				// Get the contract instance
 				var contract = web3.Eth.GetContract(contractABI, contractAddress);
                 var transferFunction = contract.GetFunction("transfer");
-
-				// Validate wallet address
-				if (!Web3.IsChecksumAddress(sensorWalletAddress))
-				{
-					sensorWalletAddress = Web3.ToChecksumAddress(sensorWalletAddress);
-				}
-                var gasPrice = await web3.Eth.GasPrice.SendRequestAsync();
-                OnLog?.Invoke(this, new LogEventArgs($"Current gas price: {gasPrice}", LogLevel.Debug));
-
                 var callInput = transferFunction.CreateCallInput(
-				   from: web3.TransactionManager.Account.Address, // Sender's address
-				   gas: null,                                    // Let it auto-estimate gas
-				   value: null,                                  // No ETH value sent
+				   from: web3.TransactionManager.Account.Address, 
+				   gas: null,                                   
+				   value: null,                                  
 				   functionInput: new object[] { sensorWalletAddress, amountInWei }
-			   );
+				);
 
-                // Estimate gas
                 var gasEstimate = await web3.Eth.Transactions.EstimateGas.SendRequestAsync(callInput);
-
-                OnLog?.Invoke(this, new LogEventArgs($"Gas estimate: {gasEstimate.Value}", LogLevel.Debug));
-                // Send the transaction
                 var transactionHash = await transferFunction.SendTransactionAsync(
-					from: web3.TransactionManager.Account.Address,
-					gas: gasEstimate,
-					value: null,
+					web3.TransactionManager.Account.Address,
+					gasEstimate,
+					null,
+					null,
 					sensorWalletAddress,
 					amountInWei
 				);
@@ -316,7 +301,7 @@ namespace Api
 			}
             catch (Exception ex)
 			{
-				OnLog?.Invoke(this, new LogEventArgs($"Error while sending tokens: {ex.Message} | StackTrace: {ex.StackTrace}", LogLevel.Error));
+				OnLog?.Invoke(this, new LogEventArgs($"Error while sending tokens: {ex.Message}", LogLevel.Error));
 			}
 		}
 	
