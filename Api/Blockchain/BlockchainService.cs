@@ -15,6 +15,7 @@ namespace Api
 		private string infuraUrl;
         private static Web3 web3;
         private event EventHandler<LogEventArgs>? OnLog;
+		private HexBigInteger? _currentNonce;
         private static string contractABI = @"[
 			{
 				""inputs"": [],
@@ -277,12 +278,15 @@ namespace Api
 			try
 			{
 				OnLog?.Invoke(this, new LogEventArgs($"Sending {tokenAmount} tokens to {sensorWalletAddress}", LogLevel.Debug));
-
+				//_currentNonce = await web3.Eth.Transactions.GetTransactionCount.SendRequestAsync(web3.TransactionManager.Account.Address); // Fetch nonce once
 				var amountInWei = Web3.Convert.ToWei(tokenAmount, 18);
 				var contract = web3.Eth.GetContract(contractABI, contractAddress);
                 var transferFunction = contract.GetFunction("transfer");
-                var gasEstimate = new HexBigInteger(60000);
-				var transactionHash = await transferFunction.SendTransactionAsync(web3.TransactionManager.Account.Address, gasEstimate, null, null, sensorWalletAddress, amountInWei);
+                var gasEstimate = new HexBigInteger(70000);
+				var transactionHash = await transferFunction.SendTransactionAsync(web3.TransactionManager.Account.Address, gasEstimate, null, sensorWalletAddress, amountInWei);
+
+				OnLog?.Invoke(this, new LogEventArgs($"Transaction successful: {transactionHash}", LogLevel.Success));
+
 			}
             catch (Exception ex)
 			{
