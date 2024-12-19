@@ -8,6 +8,7 @@ Api/bin/
 **/obj
 **/venv/
 **/__pycache__/
+**/.vscode/
 **/GeneratedFiles
 **/.vs/
 data
