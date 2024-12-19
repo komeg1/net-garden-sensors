@@ -1,32 +1,26 @@
 <div class="container mt-4">
   <h2 class="mb-3">Wallet</h2>
 
-  <div *ngIf="!isWalletReady" class="d-flex justify-content-center align-items-center" style="height: 100px;">
-    <div class="loading-spinner"></div>
-  </div>
+  <ng-container *ngFor="let title of tableTitles; let sectionIndex = index">
+    <h3>{{ title }}</h3>
+    <div *ngFor="let id of sensorIds" class="mb-3">
+      <div *ngIf="id % 4 === sectionIndex" class="card">
+        <div class="card-header" (click)="toggleSensor(id)" style="cursor: pointer;">
+          <h5 class="mb-0">Sensor {{ id }}</h5>
+        </div>
+        <div *ngIf="expandedSensor === id" class="card-body">
+          <div *ngIf="sensorBalances[id] !== undefined">
+            <p><strong>Balance:</strong> {{ sensorBalances[id] | number:'1.2-6' }} GSRT</p>
+          </div>
+          <div *ngIf="loadingSensorId === id">
+            <div class="loading-spinner"></div>
+          </div>
+          <div *ngIf="errorMessages[id]">
+            <p class="text-danger">{{ errorMessages[id] }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </ng-container>
 
-  <div *ngIf="isWalletReady">
-    <ng-container *ngFor="let title of tableTitles">
-      <h3>{{ title }}</h3>
-      <table class="table table-striped">
-        <thead>
-        <tr>
-          <th>Sensor ID</th>
-          <th>Balance</th>
-        </tr>
-        </thead>
-        <tbody>
-        <ng-container *ngFor="let id of sensorIds">
-          <tr  [id]="'sensor-' + id" *ngIf="id % 4 === tableTitles.indexOf(title)">
-            <td class="row-id">{{ id }}</td>
-            <td class="row-latest"> {{wallet[id] | number:'1.2-6' }} </td>
-          </tr>
-        </ng-container>
-        </tbody>
-      </table>
-    </ng-container>
-  </div>
-  <div *ngIf="errorMessage" class="alert alert-danger item-space">
-    {{ errorMessage }}
-  </div>
 </div>

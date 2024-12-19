@@ -79,7 +79,6 @@ export class SensorsViewComponent implements OnInit{
 
   ngOnInit(): void {
     this.getData();
-    this.getLastData();
   }
 
   /* get data from sensors */
@@ -105,29 +104,10 @@ export class SensorsViewComponent implements OnInit{
     return name
   }
 
+  /* transform date */
   formatDate(isoDate: string): string {
     const formattedDate = this.datePipe.transform(isoDate, 'yyyy-MM-dd HH:mm:ss');
     return formattedDate ? formattedDate : 'invalid date';
-  }
-
-  /* get last data from sensors */
-  getLastData(): void {
-    this.sensorService.getLastData().subscribe({
-      next: (data) => {
-        this.lastSensorData = data[0];
-        this.calculateAverage();
-      },
-      error: (err) => {
-        this.errorMessage = 'Failed to get latest data.';
-      }
-    });
-  }
-
-  /* calculate average from data */
-  private calculateAverage(): void {
-      const sensorValues = this.sensorData.slice(0, 100);
-      const total = sensorValues.reduce((sum, sensor) => sum + sensor.value, 0);
-      this.avgSensorData = total / sensorValues.length;
   }
 
   /* get filtered data */
