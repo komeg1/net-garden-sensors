@@ -7,8 +7,7 @@ services:
       context: ./Api
       dockerfile: Dockerfile
     ports:
-      - "5000:5000"
-      - "5500:5500"
+      - "5230:5230"
     depends_on:
       - mongodb
       - mosquitto
@@ -38,11 +37,15 @@ services:
     volumes:
       - ./data:/data/db
 
-  # frontend:
-  #   build:
-  #     context: ./frontend
-  #     dockerfile: Dockerfile
-  #   ports:
-  #     - "80:80"
-  #   depends_on:
-  #     - backend
+  frontend:
+    container_name: frontend-container
+    build:
+      context: ./UserApp  # Assuming your Angular project is inside a 'Frontend' folder
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+      - '4200:80'
+    environment:
+      - API_URL=http://backend-container:5230  # Set the backend URL here (internal Docker network name)
+    depends_on:
+      - backend
