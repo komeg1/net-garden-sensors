@@ -45,6 +45,7 @@ public class Program
         });
 
         var app = builder.Build();
+        app.Urls.Add("http://0.0.0.0:5230");
         app.UseCors("AllowSpecificOrigin");
         // Configure the HTTP request pipeline.
         app.UseSwagger();

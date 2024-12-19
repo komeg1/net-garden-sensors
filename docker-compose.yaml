@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  backend:
+    container_name: backend-container
+    build:
+      context: ./Api
+      dockerfile: Dockerfile
+    ports:
+      - "5230:5230"
+    depends_on:
+      - mongodb
+      - mosquitto
+
+  python-generator:
+    container_name: generator-container
+    build:
+      context: ./Generator
+      dockerfile: Dockerfile
+    depends_on:
+      - mosquitto
+
+  mosquitto:
+    container_name: mosquitto-container
+    image: eclipse-mosquitto
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+    volumes:
+      - ./Configuration/mosquitto.conf:/mosquitto/config/mosquitto.conf
+
+  mongodb:
+    container_name: mongo-container
+    image: mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./data:/data/db
+
+  frontend:
+    container_name: frontend-container
+    build:
+      context: ./UserApp
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+      - '4200:80'
+    environment:
+      - API_URL=http://backend-container:5230
+    depends_on:
+      - backend

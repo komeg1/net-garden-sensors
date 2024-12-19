@@ -1,5 +1,6 @@
 using Api.Entities.Config;
 using Microsoft.Extensions.Options;
+using Nethereum.Hex.HexTypes;
 using Nethereum.Web3;
 using Nethereum.Web3.Accounts;
 using System.Numerics;
@@ -14,6 +15,7 @@ namespace Api
 		private string infuraUrl;
         private static Web3 web3;
         private event EventHandler<LogEventArgs>? OnLog;
+		private HexBigInteger? _currentNonce;
         private static string contractABI = @"[
 			{
 				""inputs"": [],
@@ -276,47 +278,19 @@ namespace Api
 			try
 			{
 				OnLog?.Invoke(this, new LogEventArgs($"Sending {tokenAmount} tokens to {sensorWalletAddress}", LogLevel.Debug));
-
-				// Convert tokenAmount to Wei
+				//_currentNonce = await web3.Eth.Transactions.GetTransactionCount.SendRequestAsync(web3.TransactionManager.Account.Address); // Fetch nonce once
 				var amountInWei = Web3.Convert.ToWei(tokenAmount, 18);
-
-				// Get the contract instance
 				var contract = web3.Eth.GetContract(contractABI, contractAddress);
                 var transferFunction = contract.GetFunction("transfer");
-
-				// Validate wallet address
-				if (!Web3.IsChecksumAddress(sensorWalletAddress))
-				{
-					sensorWalletAddress = Web3.ToChecksumAddress(sensorWalletAddress);
-				}
-                var gasPrice = await web3.Eth.GasPrice.SendRequestAsync();
-                OnLog?.Invoke(this, new LogEventArgs($"Current gas price: {gasPrice}", LogLevel.Debug));
-
-                var callInput = transferFunction.CreateCallInput(
-				   from: web3.TransactionManager.Account.Address, // Sender's address
-				   gas: null,                                    // Let it auto-estimate gas
-				   value: null,                                  // No ETH value sent
-				   functionInput: new object[] { sensorWalletAddress, amountInWei }
-			   );
-
-                // Estimate gas
-                var gasEstimate = await web3.Eth.Transactions.EstimateGas.SendRequestAsync(callInput);
-
-                OnLog?.Invoke(this, new LogEventArgs($"Gas estimate: {gasEstimate.Value}", LogLevel.Debug));
-                // Send the transaction
-                var transactionHash = await transferFunction.SendTransactionAsync(
-					from: web3.TransactionManager.Account.Address,
-					gas: gasEstimate,
-					value: null,
-					sensorWalletAddress,
-					amountInWei
-				);
+                var gasEstimate = new HexBigInteger(70000);
+				var transactionHash = await transferFunction.SendTransactionAsync(web3.TransactionManager.Account.Address, gasEstimate, null, sensorWalletAddress, amountInWei);
 
 				OnLog?.Invoke(this, new LogEventArgs($"Transaction successful: {transactionHash}", LogLevel.Success));
+
 			}
             catch (Exception ex)
 			{
-				OnLog?.Invoke(this, new LogEventArgs($"Error while sending tokens: {ex.Message} | StackTrace: {ex.StackTrace}", LogLevel.Error));
+				OnLog?.Invoke(this, new LogEventArgs($"Error while sending tokens: {ex.Message}", LogLevel.Error));
 			}
 		}
 	
@@ -332,15 +306,8 @@ namespace Api
 
 					var contract = web3.Eth.GetContract(contractABI, contractAddress);
 					var balanceFunction = contract.GetFunction("balanceOf");
-
-					if (!Web3.IsChecksumAddress(sensorWalletAddress))
-					{
-						sensorWalletAddress = Web3.ToChecksumAddress(sensorWalletAddress);
-					}
-
 					var balance = await balanceFunction.CallAsync<BigInteger>(sensorWalletAddress);
 					var balanceInEth = Web3.Convert.FromWei(balance, 18);
-
 					OnLog?.Invoke(this, new LogEventArgs($"Balance: {balanceInEth} tokens", LogLevel.Debug));
 
 					return balanceInEth;
@@ -356,7 +323,6 @@ namespace Api
                     }
 
                     await Task.Delay(delayInMs);
-                    
 				}
 			}
             return -1;
