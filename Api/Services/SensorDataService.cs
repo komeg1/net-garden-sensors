@@ -33,6 +33,10 @@ public class SensorDataService : ISensorDataService
         OnLog?.Invoke(this,new LogEventArgs($"connected to {sensorsDatabaseSettings.Value.DatabaseName} db", LogLevel.Success));
         _blockchainService = blockchainService;
         _walletService = walletService;
+        Console.WriteLine(sensorsDatabaseSettings.Value.SensorsCollectionName);
+        _sensorDataCollection = mongoDatabase.GetCollection<SensorData>(
+            sensorsDatabaseSettings.Value.SensorsCollectionName);
+        Console.WriteLine("connected to db");
     }
 
     public async Task<List<SensorData>> GetAsync() =>
@@ -65,7 +69,7 @@ public class SensorDataService : ISensorDataService
         }
         
     }
-        
+    
     public async Task UpdateAsync(string id, SensorData updatedSensorData) =>
         await _sensorDataCollection.ReplaceOneAsync(x => x.Id == id, updatedSensorData);
 
@@ -84,10 +88,9 @@ public class SensorDataService : ISensorDataService
             new BsonDocument("$replaceRoot", new BsonDocument("newRoot", "$latestRecord")) 
         };
     
-    var result = await _sensorDataCollection.Aggregate<SensorData>(pipeline).ToListAsync();
-    return result;
+      var result = await _sensorDataCollection.Aggregate<SensorData>(pipeline).ToListAsync();
+      return result;
     }
-
     public async Task<byte[]> ExportToFile(ExportFormat format, PipelineDefinition<SensorData, SensorData>? pipeline){
         List<SensorData> data;
 

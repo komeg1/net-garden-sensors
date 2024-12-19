@@ -73,7 +73,7 @@ public class MqttService : IMqttService
             var ctx = scope.ServiceProvider.GetRequiredService<ISensorDataService>();
             var guid = GenerateObjectId();
 
-        await ctx.CreateAsync(new SensorData{Id=guid,
+            await ctx.CreateAsync(new SensorData{Id=guid,
                                                    SensorId = deserializedPayload["sensorId"].Value<int>(),
                                                    Value= deserializedPayload["value"].Value<float>(),
                                                    Unit=deserializedPayload["unit"].ToString(),
