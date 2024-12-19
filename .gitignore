@@ -1,5 +1,6 @@
 Database/
 **/appsettings.json
+**/appsettings.Production.json
 Api/bin/
 **/bin/
 **/bin
@@ -7,5 +8,6 @@ Api/bin/
 **/obj
 **/venv/
 **/__pycache__/
-**/GeneratedFiles/
 **/GeneratedFiles
+**/.vs/
+
