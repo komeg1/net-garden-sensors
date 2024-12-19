@@ -40,12 +40,12 @@ services:
   frontend:
     container_name: frontend-container
     build:
-      context: ./UserApp  # Assuming your Angular project is inside a 'Frontend' folder
+      context: ./UserApp
       dockerfile: Dockerfile
     ports:
       - "80:80"
       - '4200:80'
     environment:
-      - API_URL=http://backend-container:5230  # Set the backend URL here (internal Docker network name)
+      - API_URL=http://backend-container:5230
     depends_on:
       - backend
