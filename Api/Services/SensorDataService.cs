@@ -21,22 +21,20 @@ public class SensorDataService : ISensorDataService
         IWalletService walletService)
     {
         OnLog += Logger.Instance.Log;
-        OnLog?.Invoke(this,new LogEventArgs("connecting to db", LogLevel.Warning));
+        OnLog?.Invoke(this,new LogEventArgs("Connecting to db", LogLevel.Warning));
         var mongoClient = new MongoClient(
             sensorsDatabaseSettings.Value.ConnectionString);
-
         var mongoDatabase = mongoClient.GetDatabase(
             sensorsDatabaseSettings.Value.DatabaseName);
+
         OnLog?.Invoke(this,new LogEventArgs($"Collection: {sensorsDatabaseSettings.Value.SensorsCollectionName}",LogLevel.Debug));
         _sensorDataCollection = mongoDatabase.GetCollection<SensorData>(
             sensorsDatabaseSettings.Value.SensorsCollectionName);
-        OnLog?.Invoke(this,new LogEventArgs($"connected to {sensorsDatabaseSettings.Value.DatabaseName} db", LogLevel.Success));
+        OnLog?.Invoke(this,new LogEventArgs($"Connected to {sensorsDatabaseSettings.Value.DatabaseName} db", LogLevel.Success));
         _blockchainService = blockchainService;
         _walletService = walletService;
-        Console.WriteLine(sensorsDatabaseSettings.Value.SensorsCollectionName);
         _sensorDataCollection = mongoDatabase.GetCollection<SensorData>(
             sensorsDatabaseSettings.Value.SensorsCollectionName);
-        Console.WriteLine("connected to db");
     }
 
     public async Task<List<SensorData>> GetAsync() =>

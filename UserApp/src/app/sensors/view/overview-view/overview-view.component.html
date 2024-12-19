@@ -1,0 +1,28 @@
+<div class="container mt-4">
+  <h2 class="mb-3">Overview</h2>
+  <ng-container *ngFor="let title of tableTitles">
+    <h3>{{ title }}</h3>
+    <div *ngIf="isReady">
+      <table class="table table-striped">
+        <thead>
+        <tr>
+          <th>Sensor ID</th>
+          <th>Last Value</th>
+          <th>Average Value</th>
+        </tr>
+        </thead>
+        <tbody>
+        <ng-container *ngFor="let id of sensorIds">
+          <tr [id]="'sensor-' + id" *ngIf="id % 4 === tableTitles.indexOf(title)">
+            <td class="row-id">{{ id }}</td>
+            <td class="row-latest">{{ sensorData[id].latest }} {{ sensorData[id].unit }}</td>
+            <td class="row-average">{{ sensorData[id].values.length ? calculateAverage(sensorData[id].values) : '-' }} {{ sensorData[id].unit }}</td>
+          </tr>
+        </ng-container>
+        </tbody>
+      </table>
+    </div>
+  </ng-container>
+</div>
+
+

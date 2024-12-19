@@ -1,0 +1,172 @@
+<div class="container mt-4">
+  <h2 class="mb-3">Sensors</h2>
+
+  <!-- filters -->
+  <div  class="row mb-3">
+    <div class="col-md-3">
+      <label for="sensorId" class="form-label">Sensor ID</label>
+      <select id="sensorId" class="form-control" [(ngModel)]="filter.sensorId">
+        <option *ngFor="let id of sensorIds" [value]="id">{{ id }}</option>
+      </select>
+    </div>
+    <div class="col-md-3">
+      <label for="type" class="form-label">Unit</label>
+      <input type="text" id="type" class="form-control" [(ngModel)]="filter.type" placeholder="Enter Type" />
+    </div>
+    <div class="col-md-3">
+      <label for="startDate" class="form-label">Start Date</label>
+      <input type="date" id="startDate" class="form-control" [(ngModel)]="filter.startDate" />
+    </div>
+    <div class="col-md-3">
+      <label for="endDate" class="form-label">End Date</label>
+      <input type="date" id="endDate" class="form-control" [(ngModel)]="filter.endDate" />
+    </div>
+  </div>
+
+  <div class="row mb-3">
+    <div class="col-md-12 text-end">
+      <button class="btn gradient-light me-2" (click)="applyFilters()">Apply Filters</button>
+      <button class="btn gradient-light me-2" (click)="clearFilters()">Clear</button>
+    </div>
+  </div>
+
+  <!-- table with sensor data  -->
+  <table *ngIf="paginatedData && paginatedData.length != 0"  class="table table-striped">
+    <thead>
+    <tr>
+      <th>
+        Name
+      </th>
+      <th>
+        ID
+        <button (click)="sortByColumn('SensorID')" class="btn btn-sm btn-light">
+          ↑↓
+        </button>
+      </th>
+      <th>
+        Value
+        <button (click)="sortByColumn('Value')" class="btn btn-sm btn-light">
+          ↑↓
+        </button>
+      </th>
+      <th>
+        Location
+        <button (click)="sortByColumn('Location')" class="btn btn-sm btn-light">
+          ↑↓
+        </button>
+      </th>
+      <th>
+        Unit
+        <button (click)="sortByColumn('Unit')" class="btn btn-sm btn-light">
+          ↑↓
+        </button>
+      </th>
+      <th>
+        TimeStamp
+        <button (click)="sortByColumn('Timestamp')" class="btn btn-sm btn-light">
+          ↑↓
+        </button>
+      </th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let sensor of paginatedData">
+      <td>{{ getName(sensor.unit) }}</td>
+      <td>{{ sensor.sensorId }}</td>
+      <td>{{ sensor.value }}</td>
+      <td>{{ sensor.location}}</td>
+      <td>{{ sensor.unit}}</td>
+      <td>{{ formatDate(sensor.timestamp)}}</td>
+    </tr>
+    </tbody>
+  </table>
+
+  <!-- pagination navigation  -->
+  <div class="d-flex justify-content-between align-items-center mt-4">
+    <button class="btn btn-secondary" (click)="prevPage()" [disabled]="currentPage === 1">Previous</button>
+    <span>Page {{ currentPage }} of {{ Math.ceil(sensorData.length / pageSize) }}</span>
+    <button class="btn btn-secondary" (click)="nextPage()"
+            [disabled]="currentPage === Math.ceil(sensorData.length / pageSize)">Next</button>
+  </div>
+
+  <div *ngIf="sensorData.length == 0" class="alert alert-info item-space">
+    No data to display.
+  </div>
+
+  <div *ngIf="errorMessage" class="alert alert-danger item-space">
+    {{ errorMessage }}
+  </div>
+
+  <!-- buttons  -->
+  <div class="mt-4">
+    <button class="btn gradient-light me-2" (click)="seeCharts()">{{ getChartsButtonText() }}</button>
+    <button class="btn gradient-light me-2" (click)="downloadCSV()">Download CSV</button>
+    <button class="btn gradient-light" (click)="downloadJSON()">Download JSON</button>
+  </div>
+
+  <div *ngIf="showChart && temperatureDataEmpty && humidityDataEmpty && windDataEmpty && sunDataEmpty" class="alert alert-info item-space">
+    No chart to display.
+  </div>
+
+  <!-- charts  -->
+  <div *ngIf="showChart && onlyOneChart()" class="container shadow rounded border p-2 item-space">
+    <canvas *ngIf="!temperatureDataEmpty" baseChart
+            [data]="chartConfigurationTemperature.data"
+            [options]="chartConfigurationTemperature.options"
+            [type]="chartConfigurationTemperature.type">
+    </canvas>
+    <canvas *ngIf="!humidityDataEmpty" baseChart
+            [data]="chartConfigurationHumidity.data"
+            [options]="chartConfigurationHumidity.options"
+            [type]="chartConfigurationHumidity.type">
+    </canvas>
+    <canvas *ngIf="!windDataEmpty" baseChart
+            [data]="chartConfigurationWind.data"
+            [options]="chartConfigurationWind.options"
+            [type]="chartConfigurationWind.type">
+    </canvas>
+    <canvas *ngIf="!sunDataEmpty" baseChart
+            [data]="chartConfigurationSun.data"
+            [options]="chartConfigurationSun.options"
+            [type]="chartConfigurationSun.type">
+    </canvas>
+  </div>
+
+  <div *ngIf="showChart && !temperatureDataEmpty && !humidityDataEmpty && !windDataEmpty && !sunDataEmpty" class="container shadow rounded border p-2 item-space">
+    <div class="row">
+      <div class="col-md-6">
+        <canvas baseChart
+                [data]="chartConfigurationTemperature.data"
+                [options]="chartConfigurationTemperature.options"
+                [type]="chartConfigurationTemperature.type">
+        </canvas>
+      </div>
+      <div class="col-md-6">
+        <canvas baseChart
+                [data]="chartConfigurationHumidity.data"
+                [options]="chartConfigurationHumidity.options"
+                [type]="chartConfigurationHumidity.type">
+        </canvas>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-6">
+        <canvas baseChart
+                [data]="chartConfigurationWind.data"
+                [options]="chartConfigurationWind.options"
+                [type]="chartConfigurationWind.type">
+        </canvas>
+      </div>
+      <div class="col-md-6">
+        <canvas baseChart
+                [data]="chartConfigurationSun.data"
+                [options]="chartConfigurationSun.options"
+                [type]="chartConfigurationSun.type">
+        </canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-5"></div>
+
+</div>

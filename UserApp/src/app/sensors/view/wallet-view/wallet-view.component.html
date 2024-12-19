@@ -1,0 +1,26 @@
+<div class="container mt-4">
+  <h2 class="mb-3">Wallet</h2>
+
+  <ng-container *ngFor="let title of tableTitles; let sectionIndex = index">
+    <h3>{{ title }}</h3>
+    <div *ngFor="let id of sensorIds" class="mb-3">
+      <div *ngIf="id % 4 === sectionIndex" class="card">
+        <div class="card-header" (click)="toggleSensor(id)" style="cursor: pointer;">
+          <h5 class="mb-0">Sensor {{ id }}</h5>
+        </div>
+        <div *ngIf="expandedSensor === id" class="card-body">
+          <div *ngIf="sensorBalances[id] !== undefined">
+            <p><strong>Balance:</strong> {{ sensorBalances[id] | number:'1.2-6' }} GSRT</p>
+          </div>
+          <div *ngIf="loadingSensorId === id">
+            <div class="loading-spinner"></div>
+          </div>
+          <div *ngIf="errorMessages[id]">
+            <p class="text-danger">{{ errorMessages[id] }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+
+</div>

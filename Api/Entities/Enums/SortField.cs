@@ -5,6 +5,7 @@
         SensorId,
         Unit,
         Timestamp,
-        Value
+        Value,
+        Location
     }
 }

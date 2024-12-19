@@ -1,0 +1,19 @@
+.gradient-light {
+  background: linear-gradient(90deg, #e0b3ff, #f7c1ff);
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  font-weight: bold;
+  border-radius: 0.5rem;
+  transition: all 0.3s ease;
+}
+
+.gradient-light:hover {
+  background: linear-gradient(90deg, #d4a0ff, #f5b4ff);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.item-space {
+  margin-top: 30px;
+}
