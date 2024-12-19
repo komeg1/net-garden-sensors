@@ -46,6 +46,11 @@ public static class DbPipelineBuilder{
                             ? sort.Ascending(e => e.Value)
                             : sort.Descending(e => e.Value));
                         break;
+                    case SortField.Location:
+                        sortDefinitions.Add(rule.Order == SortType.ASCENDING
+                            ? sort.Ascending(e => e.Location)
+                            : sort.Descending(e => e.Location));
+                        break;
                 }
             }
 
